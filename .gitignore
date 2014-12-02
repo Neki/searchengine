@@ -1,0 +1,13 @@
+# Python, CPython and co.
+venv/
+.eggs/
+*.egg-info/
+__pycache__
+dist/
+build/
+
+
+# vim
+.vimtags
+
+
