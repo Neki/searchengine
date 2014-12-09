@@ -21,10 +21,6 @@ class FieldType(Enum):
     keywords = 8
 
 
-def load_from_cacm(path):
-    with open(path) as f:
-        return _build_cacm_documents(f)
-
 class InvalidCacmDocument(Exception):
 
     def __init__(self, pos, *args, **kwargs):
@@ -32,51 +28,54 @@ class InvalidCacmDocument(Exception):
         self.pos = pos
 
 
-class ReachedEndOfFile(Exception):
-    pass
+def load_from_cacm_file(path):
+    """
+    Parameter:
+        path (string) - path to the CACM collection file
+    Yields:
+        Each document in the collection
+    Example:
+        for document in load_from_cacm("/ressources/cacm.all"):
+            process(document)
+    """
+    with open(path) as f:
+        yield from load_from_cacm(f)
 
 
-# TODO : document reader that tracks whether or not we are at the end of file,
-# to avoid having to use this nasty ReachedEndOfFile (which is really a
-# glorified goto)
-# it could be a generator (as to allow stream processing) !
-
-def _build_cacm_documents(f):
-    out = []
-    while True:
-        try:
-            doc = _build_cacm_document(f)
-            out.append(doc)
-            print(doc.keywords)
-        except ReachedEndOfFile as e:
-            print(e)
-            return out
+def load_from_cacm(f):
+    """
+    Similar to load_from_cacm, excepts that it takes a file object as a
+    parameter instead of a path.
+    """
+    eof = False
+    while not eof:
+        eof, doc = _get_next_cacm_document(f)
+        yield doc
 
 
-def _build_cacm_document(f):
+def _get_next_cacm_document(f):
     doc_id = _read_document_id(f)
     title = None
     keywords = None
     abstract = None
     while True:
-        try:
-            next_field_type = _get_next_field_type(f)
-            if next_field_type == FieldType.title:
-                title = _read_field_data(f)
-            elif next_field_type == FieldType.abstract:
-                abstract = _read_field_data(f)
-            elif next_field_type == FieldType.keywords:
-                keywords = _read_field_data(f)
-            elif next_field_type == FieldType.doc_id:  # go to next document
-                return Document(doc_id, title, abstract, keywords)
-        except ReachedEndOfFile:
-            return Document(doc_id, title, abstract, keywords)
+        next_field_type = _get_next_field_type(f)
+        if next_field_type == FieldType.title:
+            title = _read_field_data(f)
+        elif next_field_type == FieldType.abstract:
+            abstract = _read_field_data(f)
+        elif next_field_type == FieldType.keywords:
+            keywords = _read_field_data(f)
+        elif next_field_type is None:  # end of file
+            return True, Document(doc_id, title, abstract, keywords)
+        elif next_field_type == FieldType.doc_id:  # go to next document
+            return False, Document(doc_id, title, abstract, keywords)
+        else:
+            _ = _read_field_data(f)
 
 
 def _read_document_id(f):
     first_line = f.readline()
-    if first_line is '':
-        raise ReachedEndOfFile("End of file reached when reading next document id.")
     if not _is_beginning_document_(first_line):
         raise InvalidCacmDocument(f.tell(), "First line of a document must"
                                     " start with .I, got {0}".format(first_line))
@@ -104,7 +103,7 @@ def _get_next_field_type(f):
         f.seek(last_pos)
         return FieldType.doc_id
     elif type_id == '':  # end of file:
-        raise ReachedEndOfFile("End of file reached when trying to read next field")
+        return None
     else:
         raise InvalidCacmDocument(f.tell(), "Unknown field type: {0}".format(type_id))
 
