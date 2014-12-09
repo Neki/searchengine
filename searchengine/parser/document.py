@@ -21,34 +21,69 @@ class FieldType(Enum):
     keywords = 8
 
 
-def load_from_cacm(path):
-    out = []
-    with open(path) as f:
-        out.append(_build_cacm_document(f))
-    return out
-
-
 class InvalidCacmDocument(Exception):
 
-    def __init__(self, line, *args, **kwargs):
-        super(args, kwargs)
-        self.line = line
+    def __init__(self, pos, *args, **kwargs):
+        super()
+        self.pos = pos
 
 
-def _build_cacm_document(f):
+def load_from_cacm_file(path):
+    """
+    Parameter:
+        path (string) - path to the CACM collection file
+    Yields:
+        Each document in the collection
+    Example:
+        for document in load_from_cacm("/ressources/cacm.all"):
+            process(document)
+    """
+    with open(path) as f:
+        yield from load_from_cacm(f)
+
+
+def load_from_cacm(f):
+    """
+    Similar to load_from_cacm, excepts that it takes a file object as a
+    parameter instead of a path.
+    """
+    eof = False
+    while not eof:
+        eof, doc = _get_next_cacm_document(f)
+        yield doc
+
+
+def _get_next_cacm_document(f):
     doc_id = _read_document_id(f)
-    next_field_type = _get_next_field_type(f)
-    # TODO
+    title = None
+    keywords = None
+    abstract = None
+    while True:
+        next_field_type = _get_next_field_type(f)
+        if next_field_type == FieldType.title:
+            title = _read_field_data(f)
+        elif next_field_type == FieldType.abstract:
+            abstract = _read_field_data(f)
+        elif next_field_type == FieldType.keywords:
+            keywords = _read_field_data(f)
+        elif next_field_type is None:  # end of file
+            return True, Document(doc_id, title, abstract, keywords)
+        elif next_field_type == FieldType.doc_id:  # go to next document
+            return False, Document(doc_id, title, abstract, keywords)
+        else:
+            _ = _read_field_data(f)
 
 
 def _read_document_id(f):
     first_line = f.readline()
-    if not first_line.starts_with(".I"):
-        raise InvalidCacmDocument(f.tell(), "First line of a document must start with .I")
-    return first_line[2:].strip()
+    if not _is_beginning_document_(first_line):
+        raise InvalidCacmDocument(f.tell(), "First line of a document must"
+                                    " start with .I, got {0}".format(first_line))
+    return int(first_line[2:].strip())
 
 
 def _get_next_field_type(f):
+    last_pos = f.tell()
     type_id = f.readline().strip()
     if type_id == ".T":
         return FieldType.title
@@ -64,7 +99,38 @@ def _get_next_field_type(f):
         return FieldType.references
     elif type_id == ".K":
         return FieldType.keywords
+    elif _is_beginning_document_(type_id):
+        f.seek(last_pos)
+        return FieldType.doc_id
+    elif type_id == '':  # end of file:
+        return None
     else:
         raise InvalidCacmDocument(f.tell(), "Unknown field type: {0}".format(type_id))
+
+
+def _is_field_declarator(line):
+    type_id = line.strip()
+    return type_id in [".T", ".W", ".A", ".N", ".X", ".K", ".B"]
+
+
+def _is_beginning_document_(line):
+    return line.strip().startswith(".I")
+
+
+def _read_field_data(f):
+    out = []
+    last_pos = f.tell()
+
+    while True:
+        last_pos = f.tell()
+        line = f.readline()
+        if line != '' and not _is_field_declarator(line) and not _is_beginning_document_(line):
+            out.append(line)
+        else:
+            f.seek(last_pos)
+            break
+
+    return "\n".join(out)
+
 
 
