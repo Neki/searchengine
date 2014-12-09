@@ -111,7 +111,7 @@ def _get_next_field_type(f):
 
 def _is_field_declarator(line):
     type_id = line.strip()
-    return type_id in [".T", ".W", ".A", ".N", ".X", ".K"]
+    return type_id in [".T", ".W", ".A", ".N", ".X", ".K", ".B"]
 
 
 def _is_beginning_document_(line):
