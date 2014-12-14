@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(name='searchengine',
       version='0.1',
@@ -15,7 +15,7 @@ setup(name='searchengine',
       author='Alizée Farshian, Benoît Faucon',
       author_email='faucon.benoit@cegetel.net',
       license='MIT',
-      packages=['searchengine'],
+      packages=find_packages(),
       include_package_data=True,
       test_suite='nose.collector',
       tests_require=['nose'],
