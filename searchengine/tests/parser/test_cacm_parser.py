@@ -12,12 +12,13 @@ class TestProcess(TestCase):
         self.assertEqual(42, _read_document_id(text))
 
     def test_read_doc(self):
-        text = StringIO(".I 25\n.T\ntata\n.K\ntoto\n.B\nsome date\n")
+        text = StringIO(".I 25\n.W\ntiti\n.T\ntata\n.K\ntoto\n.B\nsome date\n")
         doc = None
         _, doc = _get_next_cacm_document(text)
         self.assertEqual(25, doc.doc_id)
         self.assertEqual("tata\n", doc.title)
         self.assertEqual("toto\n", doc.keywords)
+        self.assertEqual("titi\n", doc.abstract)
 
     def test_read_several_docs(self):
         text = StringIO(".I 25\n.T\ntata\n.K\ntoto\n.B some date here\n.I 28\n.T\nyoyo\n")
