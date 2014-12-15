@@ -1,13 +1,20 @@
 from enum import Enum
 
 
-class Document:
+class CacmDocument:
 
     def __init__(self, doc_id, title, abstract, keywords):
         self.doc_id = doc_id
         self.title = title
         self.abstract = abstract
         self.keywords = keywords
+
+    def get_full_text(self):
+        """
+        Returns:
+            a string containing the title, abstract and keywords (each field is separated by a newline)
+        """
+        return self.title + "\n" + self.abstract + "\n" + self.keywords
 
 
 class FieldType(Enum):
@@ -67,9 +74,9 @@ def _get_next_cacm_document(f):
         elif next_field_type == FieldType.keywords:
             keywords = _read_field_data(f)
         elif next_field_type is None:  # end of file
-            return True, Document(doc_id, title, abstract, keywords)
+            return True, CacmDocument(doc_id, title, abstract, keywords)
         elif next_field_type == FieldType.doc_id:  # go to next document
-            return False, Document(doc_id, title, abstract, keywords)
+            return False, CacmDocument(doc_id, title, abstract, keywords)
         else:
             _ = _read_field_data(f)
 
