@@ -3,7 +3,7 @@
 import argparse
 import sys
 
-from searchengine.parser.document import load_from_cacm_file
+from searchengine.parser import load_from_cacm_file
 from searchengine.search.search import vectorial_research
 
 class UnknownMethodError(Exception):

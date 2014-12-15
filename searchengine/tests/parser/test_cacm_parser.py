@@ -1,7 +1,7 @@
 import unittest
 from unittest import TestCase
-from searchengine.parser.document import _read_document_id, load_from_cacm, _get_next_cacm_document
-from searchengine.parser.document import load_from_cacm_file
+from searchengine.parser.cacm_document import _read_document_id, _get_next_cacm_document
+from searchengine.parser import load_from_cacm_file, load_from_cacm
 from io import StringIO
 
 
@@ -30,3 +30,8 @@ class TestProcess(TestCase):
     def test_load_from_file(self):
         docs = load_from_cacm_file("./resources/cacm.all")
         self.assertEqual(3204, (len(list(docs))))
+
+    def test_get_full_text(self):
+        text = StringIO(".I 22\n.T\ntoto\n.K\ntata\n.W\nhi\n")
+        doc = list(load_from_cacm(text))[0]
+        self.assertEqual(doc.get_full_text(), "toto\n\nhi\n\ntata\n")
