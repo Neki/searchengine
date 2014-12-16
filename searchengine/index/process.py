@@ -24,10 +24,9 @@ class InvertedIndex:
             raise ValueError("Document ID {0} is already present in this index".format(document.doc_id))
         for word, count in stats.frequency.items():
             assert(count > 0)
-            if word in self.__index:
-                self.__index[word].add_document(document.doc_id, count)
-            else:
+            if word not in self.__index:
                 self.__index[word] = TermInfo()
+            self.__index[word].add_document(document.doc_id, count)
         self.__stats[document.doc_id] = stats
 
     @property
