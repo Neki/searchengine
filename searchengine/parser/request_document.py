@@ -6,3 +6,7 @@ class RequestDocument:
     def get_full_text(self):
         return self.request
 
+    @property
+    def doc_id(self):
+        return -1
+
