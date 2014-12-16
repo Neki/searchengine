@@ -143,6 +143,3 @@ def _read_field_data(f):
             break
 
     return "\n".join(out)
-
-
-
