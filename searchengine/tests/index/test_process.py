@@ -65,6 +65,12 @@ class TestIndex(TestCase):
         index = InvertedIndex(["common", "not", "so"], [document])
         self.assertCountEqual(["title", "abstract", "unusual", "keywords"], index.words)
 
+    def test_word_count(self):
+        document = CacmDocument(1, "title", "abstract abstract", "keywords")
+        document2 = CacmDocument(2, "title", "abstract", "keywords")
+        index = InvertedIndex([], [document, document2])
+        self.assertEqual(3, index.get_word_count("abstract"))
+
 
 class TestDocStats(TestCase):
 
@@ -72,6 +78,15 @@ class TestDocStats(TestCase):
         stats = DocStats({"toto": 20, "tata": 50}, 100)
         self.assertEqual(0.2, stats.weights["toto"])
         self.assertEqual(0.5, stats.weights["tata"])
+
+
+class TestTermInfo(TestCase):
+
+    def test_word_count(self):
+        info = TermInfo()
+        info.add_document(1, 23)
+        info.add_document(1, 2)
+        self.assertEqual(25, info.count)
 
 
 

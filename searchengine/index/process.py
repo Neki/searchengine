@@ -24,11 +24,19 @@ class InvertedIndex:
             raise ValueError("Document ID {0} is already present in this index".format(document.doc_id))
         for word, count in stats.frequency.items():
             assert(count > 0)
-            if word in self.__index:
-                self.__index[word].add_document(document.doc_id, count)
-            else:
+            if word not in self.__index:
                 self.__index[word] = TermInfo()
+            self.__index[word].add_document(document.doc_id, count)
         self.__stats[document.doc_id] = stats
+
+    def get_word_count(self, word):
+        """
+        Returns:
+            the number of occurences of the given word in the collection
+        """
+        if word in self.__index:
+            return self.__index[word].count
+        return 0
 
     @property
     def words(self):
@@ -57,14 +65,19 @@ class InvertedIndex:
 
 
 class TermInfo:
+    """Various statistics about a word (relative to the entire collection)
+    """
     def __init__(self):
         self.docs = {} # doc_id, freq
+        self.count = 0
 
     def add_document(self, doc_id, count):
         if doc_id in self.docs:
             self.docs[doc_id] += count
         else:
             self.docs[doc_id] = count
+        self.count += count
+
 
 
 class DocStats:
