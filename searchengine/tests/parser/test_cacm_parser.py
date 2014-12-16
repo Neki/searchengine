@@ -26,7 +26,6 @@ class TestProcess(TestCase):
         self.assertEqual(2, len(docs))
         self.assertEqual("yoyo\n", docs[1].title)
 
-    @unittest.skip("Skipping this test until the resource file is distributed")
     def test_load_from_file(self):
         docs = load_from_cacm_file("./resources/cacm.all")
         self.assertEqual(3204, (len(list(docs))))
@@ -34,4 +33,4 @@ class TestProcess(TestCase):
     def test_get_full_text(self):
         text = StringIO(".I 22\n.T\ntoto\n.K\ntata\n.W\nhi\n")
         doc = list(load_from_cacm(text))[0]
-        self.assertEqual(doc.get_full_text(), "toto\n\nhi\n\ntata\n")
+        self.assertEqual(doc.get_full_text(), "toto\n\nhi\n\ntata\n\n")

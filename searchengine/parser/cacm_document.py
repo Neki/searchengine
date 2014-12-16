@@ -14,7 +14,12 @@ class CacmDocument:
         Returns:
             a string containing the title, abstract and keywords (each field is separated by a newline)
         """
-        return self.title + "\n" + self.abstract + "\n" + self.keywords
+        out = ""
+        for s in [self.title, self.abstract, self.keywords]:
+            if s is not None:
+                out += s
+                out += "\n"
+        return out
 
 
 class FieldType(Enum):
@@ -42,8 +47,8 @@ def load_from_cacm_file(path):
     Yields:
         Each document in the collection
     Example:
-        for document in load_from_cacm("/ressources/cacm.all"):
-            process(document)
+        >>> for document in load_from_cacm("/ressources/cacm.all"):
+        >>>    process(document)
     """
     with open(path) as f:
         yield from load_from_cacm(f)
@@ -138,6 +143,3 @@ def _read_field_data(f):
             break
 
     return "\n".join(out)
-
-
-
