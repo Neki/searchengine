@@ -4,7 +4,7 @@ import argparse
 import sys
 
 from searchengine.parser import load_from_cacm_file
-from searchengine.search.search import vectorial_research
+from searchengine.search.search import vectorial_search
 
 class UnknownMethodError(Exception):
 
@@ -46,10 +46,16 @@ def process_command(args):
 
 
 def dispatch_search(method, request, documents, stop_words, answer_count):
+    results = None
     if method == "vectorial":
-        vectorial_research(request, list(documents), stop_words, answer_count)
+        results = vectorial_search(request, list(documents), stop_words, answer_count)
     else:
         raise UnknownMethodError("Method {0} is not supported".format(method), method)
+    display_results(results)
+
+
+def display_results(results):
+    print(results)
 
 
 if __name__ == "__main__":
