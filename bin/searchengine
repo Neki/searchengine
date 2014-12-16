@@ -4,7 +4,7 @@ import argparse
 import sys
 
 from searchengine.parser import load_from_cacm_file
-from searchengine.search.search import vectorial_search
+from searchengine.search import vectorial_search
 
 class UnknownMethodError(Exception):
 
