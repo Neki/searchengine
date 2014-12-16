@@ -34,4 +34,4 @@ class TestProcess(TestCase):
     def test_get_full_text(self):
         text = StringIO(".I 22\n.T\ntoto\n.K\ntata\n.W\nhi\n")
         doc = list(load_from_cacm(text))[0]
-        self.assertEqual(doc.get_full_text(), "toto\n\nhi\n\ntata\n")
+        self.assertEqual(doc.get_full_text(), "toto\n\nhi\n\ntata\n\n")

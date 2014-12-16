@@ -14,7 +14,12 @@ class CacmDocument:
         Returns:
             a string containing the title, abstract and keywords (each field is separated by a newline)
         """
-        return self.title + "\n" + self.abstract + "\n" + self.keywords
+        out = ""
+        for s in [self.title, self.abstract, self.keywords]:
+            if s is not None:
+                out += s
+                out += "\n"
+        return out
 
 
 class FieldType(Enum):
