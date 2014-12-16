@@ -26,7 +26,6 @@ class TestProcess(TestCase):
         self.assertEqual(2, len(docs))
         self.assertEqual("yoyo\n", docs[1].title)
 
-    @unittest.skip("Skipping this test until the resource file is distributed")
     def test_load_from_file(self):
         docs = load_from_cacm_file("./resources/cacm.all")
         self.assertEqual(3204, (len(list(docs))))
