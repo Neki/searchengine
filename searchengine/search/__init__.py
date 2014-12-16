@@ -1,1 +1,2 @@
 from .vectorial_search import vectorial_search
+from .boolean_search import boolean_search

@@ -9,6 +9,9 @@ class InvertedIndex:
         if documents is not None:
             for doc in documents:
                 self.add_document(doc)
+                
+    def get_words_by_doc_id(self, doc_id):
+        return self.__stats[doc_id].frequency.keys()
 
     def add_document(self, document):
         """
