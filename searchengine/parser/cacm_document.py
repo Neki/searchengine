@@ -42,8 +42,8 @@ def load_from_cacm_file(path):
     Yields:
         Each document in the collection
     Example:
-        for document in load_from_cacm("/ressources/cacm.all"):
-            process(document)
+        >>> for document in load_from_cacm("/ressources/cacm.all"):
+        >>>    process(document)
     """
     with open(path) as f:
         yield from load_from_cacm(f)
