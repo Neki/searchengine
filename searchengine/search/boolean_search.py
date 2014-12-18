@@ -60,8 +60,64 @@ class WordNode:
     def eval(self, doc_id):
         return self.word in self.index.get_words_by_doc_id(doc_id)
             
-def parser(request):
-    pass
-
+def is_well_parenthesized(request):
+    pile = []
+    for c in request:
+        if c in "([{":
+            pile.append(c)
+        elif c in ")]}":
+            if length(pile) == 0:
+                return False
+            else:
+                temp = top(pile)
+                pile = pop(pile)
+                if c!=temp:
+                    return False
+    if length(pile) == 0:
+        return 
+    else:
+        return False
+    
+def build_tree(request):
+    operators=["and","or", "not"]
+    t = Node()
+    p = []
+    r = request.split(" ")
+    for c in r:
+        if c in "([{":
+            p.append(t)
+            t.children[0] = Node()
+            t = t.children[0]
+        elif c in operators:
+            if c in ["and", "or"]:
+                rac = top(pi)
+                p = pop(p)
+                rac.rac = c
+                rac.children[0] = t
+                p.append(rac)
+                rac.children[1] = Node()
+                t = rac.children[1]
+                
+            else:
+                rac = top(pi)
+                p = pop(p)
+                rac.rac = c
+                rac.children[0] = Node()
+                p.append(rac)
+                rac.children[1] = Node()
+                t = rac.children[1]
+        elif c in ")]}":
+            rac = top(pi)
+            p = pop(p)
+            rac.children[1] = t
+            t = rac
+        else:
+            t = Node()
+    if length(p) == 0:
+        return t
+    else:
+        raise "Not well parenthesized"
+            
 def boolean_search(request, document_list, common_words):
+    tree = build_tree(request)
     pass

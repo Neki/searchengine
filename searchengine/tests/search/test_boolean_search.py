@@ -10,3 +10,6 @@ class TestBooleanSearch(TestCase):
         word_node = WordNode(index,"goal")
         self.assertGreaterEqual(False,word_node.eval(2))
 
+    def test_build_tree(self):
+        request="( ( toto and titty ) or ( goal or food ) ) or (not tata)"
+        build_tree(request)
