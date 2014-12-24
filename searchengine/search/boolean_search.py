@@ -33,10 +33,10 @@ class NotNode:
      def __init__(self, right):
         super().__init__(right)    
         
-        def eval(self):
-            assert(size(self._children)==1)
-            return not self._children[0].eval()
-
+     def eval(self):
+        assert(size(self._children)==1)
+        return not self._children[0].eval()
+        
 class WordNode:
     def __init__(self,index, word):
         self.index = index
