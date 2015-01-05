@@ -115,6 +115,10 @@ class MismatchedParens(Exception):
     pass
 
 
+class InvalidRequest(Exception):
+    pass
+
+
 def tokens_to_node(tokens, index):
     """
     Transforms a list of tokens into a boolean tree. Respects operator precedence and parenthesis.
@@ -170,7 +174,8 @@ def tokens_to_node(tokens, index):
         if top == "(" or top == ")":
             raise MismatchedParens
         _build_node(top, stack, output)
-    assert(len(output) == 1)
+    if len(output) > 1:
+        raise InvalidRequest
     return output[0]
 
 
@@ -178,10 +183,12 @@ def tokens_to_node(tokens, index):
 def _build_node(node_type, stack, output):
     assert node_type in ["and", "or", "not"]
     if node_type == "not":
-        assert len(output) >= 1
+        if len(output) == 0:
+            raise InvalidRequest("Not enough variables provided for operator 'not'")
         output.append(NotNode(output.pop()))
         return
-    assert len(output) >= 2
+    if len(output) < 2:
+        raise InvalidRequest("Not enough variables provided for operator {0}".format(node_type))
     left = output.pop()
     if left == "(":
         raise MismatchedParens
