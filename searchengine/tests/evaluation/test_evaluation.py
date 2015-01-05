@@ -32,3 +32,11 @@ class TestEvaluation(TestCase):
         common_words=["aujourd","il","fait","ca","mot","ok"]
         rank = 2
         self.assertEqual(1,rappel(request, document_list, common_words, rank))
+        
+    def test_plot_precision_rappel(self):
+        request = Request(1,"tata",[1,2])
+        document1 = CacmDocument(1, "aujourd \n toto \n tata","il fait \n tyty","toto \n tata tyty")
+        document2 = CacmDocument(2,"plouf \n paf","tata \n toto il tata","tyty plouf \n tata paf")
+        document_list = [document1, document2]
+        common_words=["aujourd","il","fait","ca","mot","ok"]
+        plot_precision_rappel(request, document_list, common_words)
