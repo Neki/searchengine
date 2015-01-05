@@ -15,7 +15,8 @@ def vectorial_search(request, document_list, common_words, nb_answers, weighting
         sim = similarity(l1, l2)
         if sim != 0:
             out.append((doc_id, sim))
-    return sorted(out, key=lambda x: -x[1])
+    out = sorted(out, key=lambda x: -x[1])
+    return out[:nb_answers]
 
 
 def similarity(l1, l2):
