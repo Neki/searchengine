@@ -15,7 +15,7 @@ def number_of_relevant_documents(request, search_results):
         for res in search_results:
             if doc_id == res[0]:
                 out = out+1
-    return out
+    return out 
 
 def precision(request, search_results):
     """ 
