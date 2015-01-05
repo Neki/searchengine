@@ -29,5 +29,5 @@ class TestVectorialSearch(TestCase):
         document2 = CacmDocument(2,"plouf \n paf","tata \n toto il tata","tyty plouf \n tata paf")
         document_list = [document1, document2]
         common_words=["aujourd","il","fait","ca","mot","ok"]
-        search_result = vectorial_search(request, document_list, common_words, 2,Weighting.TermFrequency)
-        self.assertEqual([(document2.doc_id,0.6882472016116852),(document1.doc_id,0.5773502691896258)],search_result)
+        search_result = vectorial_search(request, document_list, common_words, 2)
+        self.assertEqual([(document2.doc_id,0.6882472016116853),(document1.doc_id,0.5773502691896257)],search_result)
