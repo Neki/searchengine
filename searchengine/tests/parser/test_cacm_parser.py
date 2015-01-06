@@ -1,4 +1,3 @@
-import unittest
 from unittest import TestCase
 from searchengine.parser.cacm_document import _read_document_id, _get_next_cacm_document
 from searchengine.parser import load_from_cacm_file, load_from_cacm

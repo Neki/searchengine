@@ -3,7 +3,7 @@ from math import sqrt
 from searchengine.parser import RequestDocument
 
 
-def vectorial_search(request, document_list, common_words, nb_answers):
+def vectorial_search(request, document_list, common_words, nb_answers, weighting_method):
     out = []  # list of pairs (doc_id, pertinence)
     request_doc = RequestDocument(request)
     request_index = InvertedIndex(common_words, [request_doc])

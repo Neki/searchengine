@@ -1,3 +1,4 @@
+import unittest
 from unittest import TestCase
 from searchengine.index.process import *
 from searchengine.parser import CacmDocument
@@ -42,11 +43,13 @@ class TestIndex(TestCase):
         index.add_document(document)
         self.assertCountEqual(["title", "abstract", "keywords"], index.words)
         self.assertCountEqual([2], index.doc_ids)
+        self.assertEqual(1, index.nb_documents)
 
         document2 = CacmDocument(3, "title2", "abstract", "keywords")
         index.add_document(document2)
         self.assertCountEqual(["title", "title2", "abstract", "keywords"], index.words)
         self.assertCountEqual([2, 3], index.doc_ids)
+        self.assertEqual(2, index.nb_documents)
 
     def test_no_repetition(self):
         document = CacmDocument(2, "title", "abstract", "keywords")
@@ -57,8 +60,8 @@ class TestIndex(TestCase):
         document = CacmDocument(2, "title title", "abstract", "keywords")
         index = InvertedIndex([], [document])
         weights = index.get_weights(2)
-        self.assertEqual(0.5, weights["title"])
-        self.assertEqual(0.25, weights["abstract"])
+        self.assertEqual(2, weights["title"])
+        self.assertEqual(1, weights["abstract"])
 
     def test_common_words(self):
         document = CacmDocument(2, "common title", "not so common abstract", "unusual keywords")
@@ -78,14 +81,30 @@ class TestIndex(TestCase):
         index = InvertedIndex([], [document, document2, document3])
         self.assertCountEqual([1, 2], index.get_doc_ids_containing("abstract"))
 
+    def test_nb_documents_with_word(self):
+        document = CacmDocument(1, "title", "abstract abstract", "keywords")
+        document2 = CacmDocument(2, "title", "abstract", "keywords")
+        document3 = CacmDocument(3, "title", "summary", "keywords")
+        index = InvertedIndex([], [document, document2, document3])
+        self.assertEqual(2, index.get_nb_docs_with_word("abstract"))
 
 
 class TestDocStats(TestCase):
 
-    def test_weights(self):
+    def test_frequency_weights(self):
         stats = DocStats({"toto": 20, "tata": 50}, 100)
-        self.assertEqual(0.2, stats.weights["toto"])
-        self.assertEqual(0.5, stats.weights["tata"])
+        self.assertEqual(20, stats.weights()["toto"])
+        self.assertEqual(50, stats.weights()["tata"])
+
+    def test_log_frequency_weights(self):
+        stats = DocStats({"toto": 20, "tata": 50}, 100)
+        self.assertGreaterEqual(0.001, abs(2.301 - stats.weights(weighting=Weighting.LogTermFrequency)["toto"]))
+        self.assertGreaterEqual(0.001, abs(2.699 - stats.weights(weighting=Weighting.LogTermFrequency)["tata"]))
+
+    @unittest.skip("Test not written yet")
+    def test_tf_idf(self):
+        pass
+
 
 
 class TestTermInfo(TestCase):
@@ -95,12 +114,3 @@ class TestTermInfo(TestCase):
         info.add_document(1, 23)
         info.add_document(1, 2)
         self.assertEqual(25, info.count)
-
-
-
-
-
-
-
-
-
