@@ -1,4 +1,12 @@
 import string
+import math
+from enum import Enum
+
+
+class Weighting(Enum):
+    TermFrequency = 1,
+    LogTermFrequency = 2,
+    Tf_Idf = 3
 
 
 class InvertedIndex:
@@ -6,6 +14,7 @@ class InvertedIndex:
         self.__index = {}  # a dict mapping words to TermInfo
         self.__stats = {}  # a dict mapping doc IDs to DocStats
         self.common_words = common_words
+        self.__nb_documents = 0
         if documents is not None:
             for doc in documents:
                 self.add_document(doc)
@@ -31,6 +40,7 @@ class InvertedIndex:
                 self.__index[word] = TermInfo()
             self.__index[word].add_document(document.doc_id, count)
         self.__stats[document.doc_id] = stats
+        self.__nb_documents += 1
 
     def get_word_count(self, word):
         """
@@ -40,6 +50,9 @@ class InvertedIndex:
         if word in self.__index:
             return self.__index[word].count
         return 0
+
+    def get_nb_docs_with_word(self, word):
+        return self.__index[word].nb_documents
 
     @property
     def words(self):
@@ -57,14 +70,18 @@ class InvertedIndex:
         """
         return self.__stats.keys()
 
-    def get_weights(self, doc_id):
+    def get_weights(self, doc_id, weighting_method=Weighting.TermFrequency):
         """
         Parameter:
             doc_id (int): a document ID. This document must be present in the index.
         Returns:
             A dict mapping the words in the given document to their weights.
         """
-        return self.__stats[doc_id].weights
+        return self.__stats[doc_id].weights(weighting_method, self)
+
+    @property
+    def nb_documents(self):
+        return self.__nb_documents
 
     def get_doc_ids_containing(self, word):
         """
@@ -93,6 +110,9 @@ class TermInfo:
             self.docs[doc_id] = count
         self.count += count
 
+    @property
+    def nb_documents(self):
+        return len(self.docs)
 
 
 class DocStats:
@@ -108,15 +128,44 @@ class DocStats:
         self.frequency = frequency
         self.nb_words = nb_words
 
-    @property
-    def weights(self):
+    def weights(self, weighting=Weighting.TermFrequency, index=None):
         """
         Returns:
             a dictionnary mapping each word in the document to a weight
         """
+        if weighting == Weighting.TermFrequency:
+            return self.__term_frequency_weights()
+        elif weighting == Weighting.LogTermFrequency:
+            return self.__log_term_frequency_weights()
+        elif weighting == Weighting.Tf_Idf:
+            if index is None:
+                raise ValueError("An index must be provided to compute the tf-idf weights")
+            return  self.__tf_idf_weights(index)
+        else:
+            raise ValueError("Unsupported weighting method")
+
+    @property
+    def words(self):
+        return self.frequency.keys()
+
+    def __term_frequency_weights(self):
         out = {}
         for word in self.frequency.keys():
-            out[word] = self.frequency[word] / self.nb_words
+            out[word] = self.frequency[word]
+        return out
+
+    def __log_term_frequency_weights(self):
+        out = {}
+        for word in self.frequency.keys():
+            if self.frequency[word] > 0:
+                out[word] = 1 + math.log10(self.frequency[word])
+        return out
+
+    def __tf_idf_weights(self, index):
+        out = {}
+        for word in self.frequency.keys():
+            if self.frequency[word] > 0:
+                out[word] = (1 + math.log10(self.frequency[word])) * math.log10(index.nb_documents / index.get_nb_docs_with_word(word))
         return out
 
 
