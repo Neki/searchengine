@@ -37,8 +37,8 @@ def plot_precision_rappel(request, search_results):
     plt.title('Evaluation')
     yaxis = []
     for rank in range(1,len(search_results)):
-        yaxis.append(precision(request, search_results)*100)
-    ax1.plot(range(1,len(search_results)), yaxis, 'ro')
+        yaxis.append(precision(request, search_results[:rank])*100)
+    ax1.plot(range(1,len(search_results)), yaxis, '-r')
         
     ax2 = ax1.twinx()
     plt.axis([0, len(search_results), 0, 100])
@@ -46,6 +46,6 @@ def plot_precision_rappel(request, search_results):
     plt.title('Evaluation')
     yaxis2 = []
     for rank in range(1,len(search_results)):
-        yaxis2.append(rappel(request, search_results)*100)
-    ax2.plot(range(1,len(search_results)), yaxis2, 'bo')
+        yaxis2.append(rappel(request, search_results[:rank])*100)
+    ax2.plot(range(1,len(search_results)), yaxis2, 'b-')
     plt.show()

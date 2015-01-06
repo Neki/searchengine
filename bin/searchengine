@@ -23,7 +23,7 @@ class InvalidId(Exception):
 def main():
     parser = argparse.ArgumentParser(description="A simple text search tool.")
     subparsers = parser.add_subparsers(help='sub-command help')
-    parser.add_argument("-n", "--answer-count", help="how many answers are returned", type=int, default=20)
+    parser.add_argument("-n", "--answer-count", help="how many answers are returned", type=int, default=500)
     parser.add_argument("-c", "--collection", help="path to the file containing the collection", default="resources/cacm.all")
     parser.add_argument("-t", "--collection-type", help="select the parser used to "
             "load the collection from the disk", default="cacm",
