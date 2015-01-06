@@ -16,11 +16,14 @@ class UnknownMethodError(Exception):
         super().__init__(message)
         self.method_name = method_name
 
+class InvalidId(Exception):
+    def __init__(self,message):
+        super().__init__(message)
 
 def main():
     parser = argparse.ArgumentParser(description="A simple text search tool.")
     subparsers = parser.add_subparsers(help='sub-command help')
-    parser.add_argument("-n", "--answer-count", help="how many answers are returned", type=int, default=10)
+    parser.add_argument("-n", "--answer-count", help="how many answers are returned", type=int, default=20)
     parser.add_argument("-c", "--collection", help="path to the file containing the collection", default="resources/cacm.all")
     parser.add_argument("-t", "--collection-type", help="select the parser used to "
             "load the collection from the disk", default="cacm",
@@ -71,8 +74,14 @@ def process_evaluation(args):
             stop_words = f.read()
         requests = load_from_query_file(args.requests)
         results = load_from_results_file(args.results)
-        #print(results.keys())
-        request = Request(args.request_id, requests[args.request_id],results[args.request_id])
+        id = int(args.request_id)
+        if id not in requests.keys() or id not in results.keys():
+            raise InvalidId("Wrong request number. Must be in [1,64]")
+        print("Request : \n")
+        print(requests[id])
+        print("Pertinant documents : \n")
+        print(results[id])
+        request = Request(id, requests[id],results[id])
         eval_request("vectorial", request, documents, stop_words, args.answer_count)
     except FileNotFoundError as e:
         print("Could not find the file at: {0}".format(e.filename), file=sys.stderr)
@@ -93,6 +102,8 @@ def display_results(method, request, documents, stop_words, answer_count):
 
 def eval_request(method, request, documents, stop_words, answer_count):
     search_results = dispatch_search(method, request.text, documents, stop_words, answer_count)
+    print("\nOur search results :")
+    print(search_results)
     plot_precision_rappel(request, search_results)
 
 if __name__ == "__main__":
