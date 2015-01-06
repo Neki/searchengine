@@ -1,3 +1,4 @@
+import unittest
 from unittest import TestCase
 from searchengine.index.process import *
 from searchengine.parser import CacmDocument
