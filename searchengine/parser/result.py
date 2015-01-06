@@ -30,29 +30,30 @@ def load_from_results(f):
     eof = False
     while not eof:
         eof, request_id, doc_id = _get_next_result(f)
-        if request_id in out.keys():
-            out[request_id].append(doc_id)
-        else:
-            out[request_id] = [doc_id]
+        out[request_id] = doc_id
+        #if request_id in out.keys():
+        #    out[request_id] = out[request_id] + doc_id
+        #else:
+        #    out[request_id] = doc_id
     return out
 
 def _get_next_result(f):
-    request_id, doc_id = _read_result(f)
+    request_id, doc_id = _read_request(f)
     while True:
-        if is_next_result_empty(f):  # end of file:
+        next_field_type = _get_next_field_type(f)
+        if next_field_type is None:  # end of file:
+            print(request_id)
+            print(doc_id)
             return True, request_id, doc_id
         else:
             return False, request_id, doc_id
 
-def is_next_result_empty(f):
-    last_pos = f.tell()
-    next_field_type = f.readline().strip()
-    f.seek(last_pos)
-    return next_field_type == ''
+def _get_next_field_type(f):
+    type_id = f.readline().strip()
+    if type_id == '':  # end of file:
+        return None
             
-def _read_result(f):
+def _read_request(f):
     first_line = f.readline()
-    if first_line.strip() == '':
-        raise InvalidRequest(f.tell(), "empty result")
+    print(first_line)
     return int(first_line[:2]),int(first_line[3:7])
-
