@@ -1,5 +1,6 @@
 import string
 import re
+from searchengine.index.process import InvertedIndex
 
 
 class Node:
@@ -16,10 +17,7 @@ class AndNode(Node):
         super().__init__(left, right)
 
     def eval(self):
-        for child in self._children:
-            if not child.eval():
-                return False
-        return True
+        return self._children[0].eval() & self._children[1].eval()
 
     def __repr__(self):
         return "AndNode( ({0}) and ({1}) )".format(self._children[0], self._children[1])
@@ -30,22 +28,20 @@ class OrNode(Node):
         super().__init__(left, right)
 
     def eval(self):
-        for child in self._children:
-            if child.eval():
-                return True
-        return False
+        return self._children[0].eval() | self._children[1].eval()
 
     def __repr__(self):
         return "OrNode( ({0}) or ({1}) )".format(self._children[0], self._children[1])
 
 
 class NotNode(Node):
-    def __init__(self, right):
+    def __init__(self, right, index):
         super().__init__(right)
+        self.index = index
 
     def eval(self):
         assert(len(self._children) == 1)
-        return not self._children[0].eval()
+        return set(self.index.doc_ids) - self._children[0].eval()
 
     def __repr__(self):
         return "NotNode( not {0} )".format(self._children[0])
@@ -56,8 +52,8 @@ class WordNode(Node):
         self.index = index
         self.word = word
 
-    def eval(self, doc_id):
-        return self.word in self.index.get_words_by_doc_id(doc_id)
+    def eval(self):
+        return set(self.index.get_doc_ids_containing(self.word))
 
     def __repr__(self):
         return "WordNode( {0} )".format(self.word)
@@ -83,6 +79,7 @@ def build_tree(request, index):
     """
     tokens = tokenize_request(request)
     tokens = add_missing_ands(tokens)
+    #print("------- processing request {0}".format(request))
     return tokens_to_node(tokens, index)
 
 
@@ -129,8 +126,10 @@ def tokens_to_node(tokens, index):
         Node
     """
     # the implementation is an adaptation of the shunting-yard algorithm
+    # instead of building the output stack in pstfix form and then having another pass
+    # to build the tree from the output stack, the tree is computed while the tokens are read
     stack = []  # a stack of (pending) operators
-    output = []  # a stack containing nodes
+    output = []  # a stack containing nodes or the separator "("
                  # at the end of the algorithm, this stack will contain only the root of the tree
     operators = {"and": 2, "or": 1, "not": 3}  # boolean operators with their precedence
     for token in tokens:
@@ -142,7 +141,7 @@ def tokens_to_node(tokens, index):
                 top = stack[-1]
                 while(top in operators and operators[top] > operators[token]):
                     top = stack.pop()
-                    _build_node(top, stack, output)
+                    _build_node(top, index, stack, output)
                     if len(stack) == 0:
                         break
                     top = stack[-1]
@@ -157,7 +156,7 @@ def tokens_to_node(tokens, index):
             while top != "(":
                 if len(stack) == 0:
                     raise MismatchedParens
-                _build_node(top, stack, output)
+                _build_node(top, index, stack, output)
                 top = stack.pop()
             assert(len(output) >= 2)
             top = output.pop()
@@ -173,19 +172,19 @@ def tokens_to_node(tokens, index):
         top = stack.pop()
         if top == "(" or top == ")":
             raise MismatchedParens
-        _build_node(top, stack, output)
+        _build_node(top, index, stack, output)
     if len(output) > 1:
         raise InvalidRequest
     return output[0]
 
 
 # Used inside the above method
-def _build_node(node_type, stack, output):
+def _build_node(node_type, index, stack, output):
     assert node_type in ["and", "or", "not"]
     if node_type == "not":
         if len(output) == 0:
             raise InvalidRequest("Not enough variables provided for operator 'not'")
-        output.append(NotNode(output.pop()))
+        output.append(NotNode(output.pop(), index))
         return
     if len(output) < 2:
         raise InvalidRequest("Not enough variables provided for operator {0}".format(node_type))
@@ -202,5 +201,9 @@ def _build_node(node_type, stack, output):
     #print("applied operator: output : {0} / stack : {1}".format(output, stack))
 
 
-def boolean_search(request, document_list, common_words):
-    pass
+def boolean_search(request, document_list, common_words, answer_count=None):
+    index = InvertedIndex(common_words, document_list)
+    request_tree = build_tree(request, index)
+    return request_tree.eval()
+
+

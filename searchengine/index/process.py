@@ -9,7 +9,7 @@ class InvertedIndex:
         if documents is not None:
             for doc in documents:
                 self.add_document(doc)
-                
+
     def get_words_by_doc_id(self, doc_id):
         return self.__stats[doc_id].frequency.keys()
 
@@ -65,6 +65,18 @@ class InvertedIndex:
             A dict mapping the words in the given document to their weights.
         """
         return self.__stats[doc_id].weights
+
+    def get_doc_ids_containing(self, word):
+        """
+        Parameter:
+            word (str)
+        Returns:
+            list of int: a list of the IDs of documents containing the word (may be empty)
+        """
+        if word not in self.__index:
+            return []
+        return self.__index[word].docs.keys()
+
 
 
 class TermInfo:

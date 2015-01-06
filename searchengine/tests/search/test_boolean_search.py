@@ -1,16 +1,17 @@
 from unittest import TestCase
-from searchengine.search.boolean_search import WordNode, build_tree, tokenize_request, MismatchedParens, add_missing_ands, InvalidRequest
+from searchengine.search.boolean_search import WordNode, build_tree, tokenize_request, MismatchedParens, add_missing_ands, InvalidRequest, boolean_search
 from searchengine.index.process import InvertedIndex
 from searchengine.parser.cacm_document import CacmDocument
 
 
 class TestBooleanSearch(TestCase):
 
-    def test_eval(self):
-        document = CacmDocument(2, "common title", "not so common abstract", "unusual keywords")
-        index = InvertedIndex(["common", "not", "so"], [document])
+    def test_word_eval(self):
+        document = CacmDocument(1, "common title", "not so common abstract", "unusual keywords")
+        document2 = CacmDocument(2, "common title", "not so common abstract", "goal")
+        index = InvertedIndex(["common", "not", "so"], [document, document2])
         word_node = WordNode(index, "goal")
-        self.assertGreaterEqual(False, word_node.eval(2))
+        self.assertCountEqual([2], word_node.eval())
 
     def test_build_tree(self):
         # Test that requests are parsed without errors
@@ -35,6 +36,18 @@ class TestBooleanSearch(TestCase):
         expected = ["toto", "or", "(", "tata", "and", "titi", ")", "and", "tutu"]
         self.assertEqual(expected, add_missing_ands(base))
 
+    def test_boolean_search(self):
+        document = CacmDocument(1, "common title", "not so common abstract", "unusual keywords")
+        document2 = CacmDocument(2, "common title", "not so common abstract", "target")
+        document3 = CacmDocument(3, "my common title", "some abstract here", "goal")
+        document_list = [document, document2, document3]
+        common_words = ["common", "no", "so"]
+        request = "(not common and goal) or target"
+        self.assertCountEqual([3, 2], boolean_search(request, document_list, common_words))
+        request = "((common and goal) or target) and not here"
+        self.assertCountEqual([2], boolean_search(request, document_list, []))
+        request = "title common"
+        self.assertCountEqual([1, 2, 3], boolean_search(request, document_list, []))
 
 
 

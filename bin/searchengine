@@ -4,7 +4,7 @@ import argparse
 import sys
 
 from searchengine.parser import load_from_cacm_file
-from searchengine.search import vectorial_search
+from searchengine.search import vectorial_search, boolean_search
 
 class UnknownMethodError(Exception):
 
@@ -16,7 +16,7 @@ class UnknownMethodError(Exception):
 def main():
     parser = argparse.ArgumentParser(description="A simple text search tool.")
     parser.add_argument("request", help="a request string")
-    parser.add_argument("-n", "--answer-count", help="how many answers are returned", type=int, default=10)
+    parser.add_argument("-n", "--answer-count", help="how many answers are returned (note: ignored for boolean search)", type=int, default=10)
     parser.add_argument("-c", "--collection", help="path to the file containing the collection", default="resources/cacm.all")
     parser.add_argument("-t", "--collection-type", help="select the parser used to "
             "load the collection from the disk", default="cacm",
@@ -25,7 +25,7 @@ def main():
             "containing a list of 'stop words' to ignore when indexing",
             default="resources/common_words")
     parser.add_argument("-m", "--method", help="The method used to perform the search", default="vectorial",
-            choices=["vectorial"])
+            choices=["vectorial", "boolean"])
     args = parser.parse_args()
     process_command(args)
 
@@ -49,6 +49,8 @@ def dispatch_search(method, request, documents, stop_words, answer_count):
     results = None
     if method == "vectorial":
         results = vectorial_search(request, list(documents), stop_words, answer_count)
+    elif method == "boolean":
+        results = boolean_search(request, list(documents), stop_words, answer_count)
     else:
         raise UnknownMethodError("Method {0} is not supported".format(method), method)
     display_results(results)

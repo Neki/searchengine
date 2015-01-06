@@ -71,6 +71,14 @@ class TestIndex(TestCase):
         index = InvertedIndex([], [document, document2])
         self.assertEqual(3, index.get_word_count("abstract"))
 
+    def test_word_list(self):
+        document = CacmDocument(1, "title", "abstract abstract", "keywords")
+        document2 = CacmDocument(2, "title", "abstract", "keywords")
+        document3 = CacmDocument(3, "title", "notanabstract", "keywords")
+        index = InvertedIndex([], [document, document2, document3])
+        self.assertCountEqual([1, 2], index.get_doc_ids_containing("abstract"))
+
+
 
 class TestDocStats(TestCase):
 
