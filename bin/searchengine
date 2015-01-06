@@ -6,6 +6,7 @@ import sys
 from searchengine.parser import load_from_cacm_file
 from searchengine.search import vectorial_search, boolean_search
 from searchengine.index.process import Weighting
+from searchengine.evaluation.evaluation import plot_precision_rappel, Request
 
 class UnknownMethodError(Exception):
 
@@ -16,21 +17,40 @@ class UnknownMethodError(Exception):
 
 def main():
     parser = argparse.ArgumentParser(description="A simple text search tool.")
-    parser.add_argument("request", help="a request string")
-    parser.add_argument("-n", "--answer-count", help="how many answers are returned (note: ignored for boolean search)", type=int, default=10)
-    parser.add_argument("-c", "--collection", help="path to the file containing the collection", default="resources/cacm.all")
-    parser.add_argument("-t", "--collection-type", help="select the parser used to "
+    subparsers = parser.add_subparsers(help='sub-command help')
+    
+    parser_search = subparsers.add_parser('search', help='search help')
+    parser_search.add_argument("request", help="a request string")
+    parser_search.add_argument("-n", "--answer-count", help="how many answers are returned", type=int, default=10)
+    parser_search.add_argument("-c", "--collection", help="path to the file containing the collection", default="resources/cacm.all")
+    parser_search.add_argument("-t", "--collection-type", help="select the parser used to "
             "load the collection from the disk", default="cacm",
             choices=["cacm", "wikipedia"])
-    parser.add_argument("-s", "--stop-words", help="path to the file "
+    parser_search.add_argument("-s", "--stop-words", help="path to the file "
             "containing a list of 'stop words' to ignore when indexing",
             default="resources/common_words")
-    parser.add_argument("-m", "--method", help="The method used to perform the search", default="vectorial",
-            choices=["vectorial", "boolean"])
+    parser_search.add_argument("-m", "--method", help="The method used to perform the search", default="vectorial",
+            choices=["vectorial"])
+    
+    parser_evaluation = subparsers.add_parser('eval', help='evaluation help')
+    parser_evaluation.add_argument("request", help="a request string")
+    parser_evaluation.add_argument("-n", "--answer-count", help="how many answers are returned", type=int, default=10)
+    parser_evaluation.add_argument("-c", "--collection", help="path to the file containing the collection", default="resources/cacm.all")
+    parser_evaluation.add_argument("-t", "--collection-type", help="select the parser used to "
+            "load the collection from the disk", default="cacm",
+            choices=["cacm", "wikipedia"])
+    parser_evaluation.add_argument("-s", "--stop-words", help="path to the file "
+            "containing a list of 'stop words' to ignore when indexing",
+            default="resources/common_words")
+    parser_evaluation.add_argument("-m", "--method", help="The method used to perform the search", default="vectorial",
+            choices=["vectorial"])
+    
+    parser_search.set_defaults(func=process_search)
+    parser_evaluation.set_defaults(func=process_evaluation)
     args = parser.parse_args()
-    process_command(args)
+    args.func(args)
 
-def process_command(args):
+def process_search(args):
     try:
         if args.collection_type == "cacm":
             # documents is an iterator
@@ -40,11 +60,25 @@ def process_command(args):
         stop_words = None
         with open(args.stop_words) as f:
             stop_words = f.read()
-        dispatch_search(args.method, args.request, documents, stop_words, args.answer_count)
+        display_results(args.method, args.request, documents, stop_words, args.answer_count)
     except FileNotFoundError as e:
         print("Could not find the file at: {0}".format(e.filename), file=sys.stderr)
         sys.exit(1)
 
+def process_evaluation(args):
+    try:
+        if args.collection_type == "cacm":
+            # documents is an iterator
+            documents = load_from_cacm_file(args.collection)
+        elif args.collection_type == "wikipedia":
+            raise NotImplementedError("Wikipedia parser is not implemented yet.")
+        stop_words = None
+        with open(args.stop_words) as f:
+            stop_words = f.read()
+        eval_request(args.method, args.request, documents, stop_words, args.answer_count)
+    except FileNotFoundError as e:
+        print("Could not find the file at: {0}".format(e.filename), file=sys.stderr)
+        sys.exit(1)
 
 def dispatch_search(method, request, documents, stop_words, answer_count):
     results = None
@@ -54,12 +88,15 @@ def dispatch_search(method, request, documents, stop_words, answer_count):
         results = boolean_search(request, list(documents), stop_words, answer_count)
     else:
         raise UnknownMethodError("Method {0} is not supported".format(method), method)
-    display_results(results)
+    return results
 
+def display_results(method, request, documents, stop_words, answer_count):
+    print(dispatch_search(method, request, documents, stop_words, answer_count))
 
-def display_results(results):
-    print(results)
-
+def eval_request(method, request, documents, stop_words, answer_count):
+    search_results = dispatch_search(method, request, documents, stop_words, answer_count)
+    req = Request(1, request, [2,3])
+    plot_precision_rappel(req, search_results)
 
 if __name__ == "__main__":
     try:

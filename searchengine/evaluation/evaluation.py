@@ -9,45 +9,43 @@ class Request:
         self.text = text
         self.result = result # list of doc ids
 
-def number_of_relevant_documents(request, search_result):
+def number_of_relevant_documents(request, search_results):
     out = 0
     for doc_id in request.result:
-        for res in search_result:
+        for res in search_results:
             if doc_id == res[0]:
                 out = out+1
     return out
 
-def precision(request, document_list, common_words, rank):
+def precision(request, search_results):
     """ 
-    Number of relevant documents found on number of found documents
+    Number of relevant documents found over number of found documents
     """
-    search_result = vectorial_search(request.text, document_list, common_words, rank)
-    return number_of_relevant_documents(request, search_result)/rank
+    return number_of_relevant_documents(request, search_results)/len(search_results)
     
-def rappel(request, document_list, common_words, rank):
+def rappel(request, search_results):
     """ 
-    Number of relevant documents found on number of relevant documents
+    Number of relevant documents found over number of relevant documents
     """
-    search_result = vectorial_search(request.text, document_list, common_words, rank)
-    return number_of_relevant_documents(request, search_result)/len(request.result)
+    return number_of_relevant_documents(request, search_results)/len(request.result)
 
-def plot_precision_rappel(request, document_list, common_words):
+def plot_precision_rappel(request, search_results):
     fig, ax1 = plt.subplots()
-    plt.axis([0, len(document_list), 0, 100])
+    plt.axis([0, len(search_results), 0, 100])
     plt.xlabel('Rank')
     ax1.set_ylabel('Precision', color='r')
     plt.title('Evaluation')
     yaxis = []
-    for rank in range(1,len(document_list)):
-        yaxis.append(precision(request, document_list, common_words, rank)*100)
-    ax1.plot(range(1,len(document_list)), yaxis, 'ro')
+    for rank in range(1,len(search_results)):
+        yaxis.append(precision(request, search_results)*100)
+    ax1.plot(range(1,len(search_results)), yaxis, 'ro')
         
     ax2 = ax1.twinx()
-    plt.axis([0, len(document_list), 0, 100])
+    plt.axis([0, len(search_results), 0, 100])
     ax2.set_ylabel('Rappel', color='b')
     plt.title('Evaluation')
     yaxis2 = []
-    for rank in range(1,len(document_list)):
-        yaxis2.append(rappel(request, document_list, common_words, rank)*100)
-    ax2.plot(range(1,len(document_list)), yaxis2, 'bo')
+    for rank in range(1,len(search_results)):
+        yaxis2.append(rappel(request, search_results)*100)
+    ax2.plot(range(1,len(search_results)), yaxis2, 'bo')
     plt.show()
