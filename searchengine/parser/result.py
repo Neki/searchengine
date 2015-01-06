@@ -40,20 +40,16 @@ def load_from_results(f):
 def _get_next_result(f):
     request_id, doc_id = _read_request(f)
     while True:
-        next_field_type = _get_next_field_type(f)
-        if next_field_type is None:  # end of file:
-            print(request_id)
-            print(doc_id)
+        next_field_type = f.readline().strip()
+        if next_field_type == '':  # end of file:
             return True, request_id, doc_id
         else:
             return False, request_id, doc_id
 
-def _get_next_field_type(f):
-    type_id = f.readline().strip()
-    if type_id == '':  # end of file:
-        return None
             
 def _read_request(f):
     first_line = f.readline()
     print(first_line)
+    if first_line.strip == '':
+        raise InvalidRequest(f.tell(), "Unknown field type: {0}".format(type_id))
     return int(first_line[:2]),int(first_line[3:7])
