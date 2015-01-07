@@ -9,6 +9,7 @@ from searchengine.index.process import Weighting
 from searchengine.evaluation.evaluation import plot_precision_rappel, Request
 from searchengine.parser.query import load_from_query_file
 from searchengine.parser.result import load_from_results_file
+from searchengine.index.process import Weighting
 
 class UnknownMethodError(Exception):
 
@@ -90,7 +91,7 @@ def process_evaluation(args):
 def dispatch_search(method, request, documents, stop_words, answer_count):
     results = None
     if method == "vectorial":
-        results = vectorial_search(request, list(documents), stop_words, answer_count, Weighting.Tf_Idf)
+        results = vectorial_search(request, list(documents), stop_words, answer_count, Weighting.TermFrequency)
     elif method == "boolean":
         results = boolean_search(request, list(documents), stop_words, answer_count)
     else:
