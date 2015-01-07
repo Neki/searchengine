@@ -9,6 +9,7 @@ from searchengine.index.process import Weighting
 from searchengine.evaluation.evaluation import plot_precision_rappel, Request
 from searchengine.parser.query import load_from_query_file
 from searchengine.parser.result import load_from_results_file
+from searchengine.index.process import Weighting
 
 class UnknownMethodError(Exception):
 
