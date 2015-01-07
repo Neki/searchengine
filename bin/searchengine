@@ -31,16 +31,18 @@ def main():
     parser.add_argument("-s", "--stop-words", help="path to the file "
             "containing a list of 'stop words' to ignore when indexing",
             default="resources/common_words")
+    parser.add_argument("-w", "--weight_method", help="The method used to perform the weight", default="tfidf",
+            choices=["tfidf","tf","ltf"])    
     
     parser_search = subparsers.add_parser('search', help='Search request')
     parser_search.add_argument("request", help="a request string")
-    parser_search.add_argument("-m", "--method", help="The method used to perform the search", default="vectorial",
+    parser_search.add_argument("-m", "--search_method", help="The method used to perform the search", default="vectorial",
             choices=["vectorial"])
     
     parser_evaluation = subparsers.add_parser('eval', help='Request evaluation')
     parser_evaluation.add_argument("request_id", help="a request number")
-    parser_evaluation.add_argument("-req", "--requests", help="path to the file containing the requests", default="resources/query.text")
-    parser_evaluation.add_argument("-res", "--results", help="path to the file containing the results", default="resources/qrels.text")
+    parser_evaluation.add_argument("-q", "--requests", help="path to the file containing the requests", default="resources/query.text")
+    parser_evaluation.add_argument("-r", "--results", help="path to the file containing the results", default="resources/qrels.text")
 
     parser_search.set_defaults(func=process_search)
     parser_evaluation.set_defaults(func=process_evaluation)
@@ -57,10 +59,20 @@ def process_search(args):
         stop_words = None
         with open(args.stop_words) as f:
             stop_words = f.read()
-        display_results(args.method, args.request, documents, stop_words, args.answer_count)
+        display_results(args.search_method, get_weight_method(args.weight_method), args.request, documents, stop_words, args.answer_count)
     except FileNotFoundError as e:
         print("Could not find the file at: {0}".format(e.filename), file=sys.stderr)
         sys.exit(1)
+
+def get_weight_method(arg_weight_method):
+    if arg_weight_method == "tfidf":
+        return Weighting.Tf_Idf
+    elif arg_weight_method == "ltf":
+        return Weighting.LogTermFrequency
+    elif arg_weight_method == "tf":
+        return Weighting.TermFrequency
+    else:
+        raise 'wrong weight method'
 
 def process_evaluation(args):
     try:
@@ -82,27 +94,26 @@ def process_evaluation(args):
         print("Pertinant documents : \n")
         print(results[id])
         request = Request(id, requests[id],results[id])
-        eval_request("vectorial", request, documents, stop_words, args.answer_count)
+        eval_request("vectorial",get_weight_method(args.weight_method), request, documents, stop_words, args.answer_count)
     except FileNotFoundError as e:
         print("Could not find the file at: {0}".format(e.filename), file=sys.stderr)
         sys.exit(1)
 
-def dispatch_search(method, request, documents, stop_words, answer_count):
+def dispatch_search(search_method,weight_method, request, documents, stop_words, answer_count):
     results = None
-    if method == "vectorial":
-        # TODO Add weight method as parameter (if user wants to choose)
-        results = vectorial_search(request, list(documents), stop_words, answer_count, Weighting.TermFrequency)
-    elif method == "boolean":
+    if search_method == "vectorial":
+        results = vectorial_search(request, list(documents), stop_words, answer_count, weight_method)
+    elif search_method == "boolean":
         results = boolean_search(request, list(documents), stop_words, answer_count)
     else:
         raise UnknownMethodError("Method {0} is not supported".format(method), method)
     return results
 
-def display_results(method, request, documents, stop_words, answer_count):
-    print(dispatch_search(method, request, documents, stop_words, answer_count))
+def display_results(search_method, weight_method, request, documents, stop_words, answer_count):
+    print(dispatch_search(search_method, weight_method, request, documents, stop_words, answer_count))
 
-def eval_request(method, request, documents, stop_words, answer_count):
-    search_results = dispatch_search(method, request.text, documents, stop_words, answer_count)
+def eval_request(search_method, weight_method, request, documents, stop_words, answer_count):
+    search_results = dispatch_search(search_method, weight_method, request.text, documents, stop_words, answer_count)
     print("\nOur search results :")
     print(search_results)
     plot_precision_rappel(request, search_results)
