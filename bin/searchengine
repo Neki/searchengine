@@ -5,6 +5,7 @@ import sys
 
 from searchengine.parser import load_from_cacm_file
 from searchengine.search import vectorial_search, boolean_search
+from searchengine.index.process import Weighting
 
 class UnknownMethodError(Exception):
 
@@ -48,7 +49,7 @@ def process_command(args):
 def dispatch_search(method, request, documents, stop_words, answer_count):
     results = None
     if method == "vectorial":
-        results = vectorial_search(request, list(documents), stop_words, answer_count)
+        results = vectorial_search(request, list(documents), stop_words, answer_count, Weighting.Tf_Idf)
     elif method == "boolean":
         results = boolean_search(request, list(documents), stop_words, answer_count)
     else:
