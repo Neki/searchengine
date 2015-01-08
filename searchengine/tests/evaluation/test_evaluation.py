@@ -2,7 +2,7 @@ from unittest import TestCase
 from searchengine.evaluation.evaluation import *
 from searchengine.search.vectorial_search import vectorial_search
 from searchengine.parser import CacmDocument
-
+from searchengine.index.process import Weighting
 
 class TestEvaluation(TestCase):
 
@@ -12,7 +12,7 @@ class TestEvaluation(TestCase):
         document2 = CacmDocument(2,"plouf \n paf","tata \n toto il tata","tyty plouf \n tata paf")
         document_list = [document1, document2]
         common_words=["aujourd","il","fait","ca","mot","ok"]
-        search_result = vectorial_search(request.text, document_list, common_words, 2)
+        search_result = vectorial_search(request.text, document_list, common_words, 2,Weighting.TermFrequency)
         self.assertEqual(2,number_of_relevant_documents(request, search_result))
 
     def test_precision(self):
@@ -21,8 +21,8 @@ class TestEvaluation(TestCase):
         document2 = CacmDocument(2,"plouf \n paf","tata \n toto il tata","tyty plouf \n tata paf")
         document_list = [document1, document2]
         common_words=["aujourd","il","fait","ca","mot","ok"]
-        rank = 2
-        self.assertEqual(1,precision(request, document_list, common_words, rank))
+        search_results = vectorial_search(request.text, document_list, common_words, 2,Weighting.TermFrequency)
+        self.assertEqual(1,precision(request, search_results))
         
     def test_rappel(self):
         request = Request(1,"tata",[1,2])
@@ -30,8 +30,8 @@ class TestEvaluation(TestCase):
         document2 = CacmDocument(2,"plouf \n paf","tata \n toto il tata","tyty plouf \n tata paf")
         document_list = [document1, document2]
         common_words=["aujourd","il","fait","ca","mot","ok"]
-        rank = 2
-        self.assertEqual(1,rappel(request, document_list, common_words, rank))
+        search_results = vectorial_search(request.text, document_list, common_words, 2,Weighting.TermFrequency)
+        self.assertEqual(1,rappel(request, search_results))
         
     def test_plot_precision_rappel(self):
         request = Request(1,"tata",[1,2])
@@ -39,4 +39,5 @@ class TestEvaluation(TestCase):
         document2 = CacmDocument(2,"plouf \n paf","tata \n toto il tata","tyty plouf \n tata paf")
         document_list = [document1, document2]
         common_words=["aujourd","il","fait","ca","mot","ok"]
-        plot_precision_rappel(request, document_list, common_words)
+        search_results = vectorial_search(request.text, document_list, common_words, 2,Weighting.TermFrequency)
+        plot_precision_rappel(request, search_results)
