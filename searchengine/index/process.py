@@ -52,6 +52,8 @@ class InvertedIndex:
         return 0
 
     def get_nb_docs_with_word(self, word):
+        if word not in self.__index:
+            return 0
         return self.__index[word].nb_documents
 
     @property
@@ -166,8 +168,9 @@ class DocStats:
     def __tf_idf_weights(self, index):
         out = {}
         for word in self.frequency.keys():
-            if self.frequency[word] > 0:
-                out[word] = (1 + math.log10(self.frequency[word])) * math.log10(index.nb_documents / index.get_nb_docs_with_word(word))
+            dft = index.get_nb_docs_with_word(word)
+            if self.frequency[word] > 0 and dft > 0:
+                out[word] = (1 + math.log10(self.frequency[word])) * math.log10(index.nb_documents / dft)
         return out
 
 
