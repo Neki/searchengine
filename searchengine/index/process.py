@@ -52,6 +52,8 @@ class InvertedIndex:
         return 0
 
     def get_nb_docs_with_word(self, word):
+        if word not in self.__index:
+            return 0
         return self.__index[word].nb_documents
 
     @property
@@ -70,14 +72,16 @@ class InvertedIndex:
         """
         return self.__stats.keys()
 
-    def get_weights(self, doc_id, weighting_method=Weighting.TermFrequency):
+    def get_weights(self, doc_id, weighting_method=Weighting.TermFrequency, corpus_index=None):
         """
         Parameter:
             doc_id (int): a document ID. This document must be present in the index.
+            weighting_method (Weighting): the method used to compute the weight of each term in the document
+            corpus_index (InvertedIndex): used only for the method Tf_Idf, the index for the corpus (not of the request). This parameter is ignored for other weighting methods.
         Returns:
             A dict mapping the words in the given document to their weights.
         """
-        return self.__stats[doc_id].weights(weighting_method, self)
+        return self.__stats[doc_id].weights(weighting_method, corpus_index)
 
     @property
     def nb_documents(self):
@@ -164,8 +168,9 @@ class DocStats:
     def __tf_idf_weights(self, index):
         out = {}
         for word in self.frequency.keys():
-            if self.frequency[word] > 0:
-                out[word] = (1 + math.log10(self.frequency[word])) * math.log10(index.nb_documents / index.get_nb_docs_with_word(word))
+            dft = index.get_nb_docs_with_word(word)
+            if self.frequency[word] > 0 and dft > 0:
+                out[word] = (1 + math.log10(self.frequency[word])) * math.log10(index.nb_documents / dft)
         return out
 
 

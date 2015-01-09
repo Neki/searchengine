@@ -8,9 +8,9 @@ def vectorial_search(request, document_list, common_words, nb_answers, weighting
     request_doc = RequestDocument(request)
     request_index = InvertedIndex(common_words, [request_doc])
     index = InvertedIndex(common_words, document_list)
-    request_weights = request_index.get_weights(request_doc.doc_id,weighting_method)
+    request_weights = request_index.get_weights(request_doc.doc_id, weighting_method, index)
     for doc_id in index.doc_ids:
-        doc_weights = index.get_weights(doc_id,weighting_method)
+        doc_weights = index.get_weights(doc_id, weighting_method, index)
         l1, l2 = build_weights_vectors(request_weights, doc_weights)
         sim = similarity(l1, l2)
         if sim != 0:

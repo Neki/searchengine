@@ -40,6 +40,8 @@ class TestIndex(TestCase):
     def test_add_document(self):
         document = CacmDocument(2, "title", "abstract", "keywords")
         index = InvertedIndex([])
+        self.assertEqual(0, index.nb_documents)
+
         index.add_document(document)
         self.assertCountEqual(["title", "abstract", "keywords"], index.words)
         self.assertCountEqual([2], index.doc_ids)
@@ -86,6 +88,7 @@ class TestIndex(TestCase):
         document2 = CacmDocument(2, "title", "abstract", "keywords")
         document3 = CacmDocument(3, "title", "summary", "keywords")
         index = InvertedIndex([], [document, document2, document3])
+        self.assertEqual(0, index.get_nb_docs_with_word("notreallyaword"))
         self.assertEqual(2, index.get_nb_docs_with_word("abstract"))
 
 
