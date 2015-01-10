@@ -4,7 +4,7 @@ import argparse
 import sys
 
 from searchengine.parser import load_from_cacm_file
-from searchengine.search import vectorial_search, boolean_search
+from searchengine.search import vectorial_search, boolean_search, binary_independance_retrieval
 from searchengine.index.process import Weighting
 from searchengine.evaluation.evaluation import plot_precision_rappel, Request, courbe_rappel_precision
 from searchengine.parser.query import load_from_query_file
@@ -33,17 +33,20 @@ def main():
             "containing a list of 'stop words' to ignore when indexing",
             default="resources/common_words")
     parser.add_argument("-w", "--weight_method", help="The method used to perform the weight", default="tfidf",
-            choices=["tfidf","tf","ltf"])    
-    
+            choices=["tfidf","tf","ltf"])
+
     parser_search = subparsers.add_parser('search', help='Search request')
     parser_search.add_argument("request", help="a request string")
     parser_search.add_argument("-m", "--search_method", help="The method used to perform the search", default="vectorial",
-            choices=["vectorial"])
-    
+            choices=["vectorial", "probabilistic", "boolean"])
+
+
     parser_evaluation = subparsers.add_parser('eval', help='Request evaluation')
     parser_evaluation.add_argument("request_id", help="a request number")
     parser_evaluation.add_argument("-q", "--requests", help="path to the file containing the requests", default="resources/query.text")
     parser_evaluation.add_argument("-r", "--results", help="path to the file containing the results", default="resources/qrels.text")
+    parser_evaluation.add_argument("-m", "--search_method", help="The method used to perform the search", default="vectorial",
+            choices=["vectorial", "probabilistic"])
 
     parser_search.set_defaults(func=process_search)
     parser_evaluation.set_defaults(func=process_evaluation)
@@ -106,6 +109,8 @@ def dispatch_search(search_method,weight_method, request, documents, stop_words,
         results = vectorial_search(request, list(documents), stop_words, answer_count, weight_method)
     elif search_method == "boolean":
         results = boolean_search(request, list(documents), stop_words, answer_count)
+    elif method == "probabilistic":
+        results = binary_independance_retrieval(request, list(documents), stop_words, answer_count)
     else:
         raise UnknownMethodError("Method {0} is not supported".format(method), method)
     return results
