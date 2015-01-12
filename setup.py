@@ -20,4 +20,5 @@ setup(name='searchengine',
       test_suite='nose.collector',
       tests_require=['nose'],
       scripts=['bin/searchengine'],
+      install_requires=['matplotlib']
       )
