@@ -98,6 +98,26 @@ class InvertedIndex:
             return []
         return self.__index[word].docs.keys()
 
+    def probability_rsv(self, request_index, doc_id):
+        """
+        Parameters:
+            request_index (InvertedIndex)
+            doc_id (int)
+        Returns:
+          (float) The retrieval status value for the document (relative to the given request), under the PRP (probability ranking principe) model and the BIR (binary independance retrieval) hypothesis
+        """
+        intersect = set(request_index.words) & set(self.__stats[doc_id].words)
+        if len(intersect) == 0:
+            return None
+        rsv = 0
+        for word in intersect:
+            dft = self.get_nb_docs_with_word(word)
+            assert(dft >= 1)  # dft >= 1 by definition of intersect
+            a = math.log10(self.nb_documents / dft - 1)
+            pr = 0.5  # TODO: use a more sophisticated method
+            b = math.log10(pr / (1 - pr))
+            rsv += b + a
+        return rsv
 
 
 class TermInfo:
@@ -172,6 +192,7 @@ class DocStats:
             if self.frequency[word] > 0 and dft > 0:
                 out[word] = (1 + math.log10(self.frequency[word])) * math.log10(index.nb_documents / dft)
         return out
+
 
 
 def document_word_count(document, common_words):
