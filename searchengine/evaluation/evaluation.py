@@ -38,12 +38,19 @@ def courbe_rappel_precision(request, search_results):
     plt.title('Evaluation')
     xaxis = []
     yaxis = []
-    for rank in range(1,len(search_results)-1):
-        xaxis.append(rappel(request, search_results[0:rank])*100)
-        yaxis.append(precision(request, search_results[0:rank])*100)
+    x =  rappel(request, search_results)*100
+    y = precision(request, search_results)*100
+    xaxis.append(x)
+    yaxis.append(y)
+    for rank in range(len(search_results)-2,0,-1):
+        x = rappel(request, search_results[0:rank])*100
+        y = precision(request, search_results[0:rank])*100
+        if y < yaxis[]:
+            xaxis.append(x)
+            yaxis.append(y)
         print(" rappel x = " + str(xaxis[len(xaxis)-1]))
         print(" precision y = " + str(yaxis[len(yaxis)-1]))
-    plt.plot(xaxis, yaxis,"o")
+    plt.plot(xaxis.reverse(), yaxis.reverse())
     plt.show()
 
 def plot_precision_rappel(request, search_results):
@@ -53,6 +60,7 @@ def plot_precision_rappel(request, search_results):
     ax1.set_ylabel('Precision', color='r')
     plt.title('Evaluation')
     yaxis = []
+    yaxis.append(precision(request, [search_results[0]])*100)
     for rank in range(1,len(search_results)):
         yaxis.append(precision(request, search_results[:rank])*100)
     ax1.plot(range(1,len(search_results)), yaxis, '-r')
@@ -62,6 +70,7 @@ def plot_precision_rappel(request, search_results):
     ax2.set_ylabel('Rappel', color='b')
     plt.title('Evaluation')
     yaxis2 = []
+    yaxis2.append(rappel(request, [search_results[0]])*100)
     for rank in range(1,len(search_results)):
         yaxis2.append(rappel(request, search_results[:rank])*100)
     ax2.plot(range(1,len(search_results)), yaxis2, 'b-')
