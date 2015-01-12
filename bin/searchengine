@@ -6,7 +6,7 @@ import sys
 from searchengine.parser import load_from_cacm_file
 from searchengine.search import vectorial_search, boolean_search, binary_independance_retrieval
 from searchengine.index.process import Weighting
-from searchengine.evaluation.evaluation import plot_precision_rappel, Request, courbe_rappel_precision
+from searchengine.evaluation.evaluation import plot_precision_vs_recall, Request
 from searchengine.parser.query import load_from_query_file
 from searchengine.parser.result import load_from_results_file
 from searchengine.index.process import Weighting
@@ -122,7 +122,7 @@ def eval_request(search_method, weight_method, request, documents, stop_words, a
     search_results = dispatch_search(search_method, weight_method, request.text, documents, stop_words, answer_count)
     print("\nOur search results :")
     print(search_results)
-    courbe_rappel_precision(request, search_results)
+    plot_precision_vs_recall(request, search_results)
 
 if __name__ == "__main__":
     try:
