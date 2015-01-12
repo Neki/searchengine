@@ -23,7 +23,7 @@ class TestEvaluation(TestCase):
         common_words=["aujourd","il","fait","ca","mot","ok"]
         search_results = vectorial_search(request.text, document_list, common_words, 2,Weighting.TermFrequency)
         self.assertEqual(1,precision(request, search_results))
-        
+
     def test_rappel(self):
         request = Request(1,"tata",[1,2])
         document1 = CacmDocument(1, "aujourd \n toto \n tata","il fait \n tyty","toto \n tata tyty")
@@ -32,7 +32,7 @@ class TestEvaluation(TestCase):
         common_words=["aujourd","il","fait","ca","mot","ok"]
         search_results = vectorial_search(request.text, document_list, common_words, 2,Weighting.TermFrequency)
         self.assertEqual(1,rappel(request, search_results))
-        
+
     @unittest.skip("Skipping until Travis CI is properly configured (this test blocks otherwise)")
     def test_plot_precision_rappel(self):
         request = Request(1,"tata",[1,2])
