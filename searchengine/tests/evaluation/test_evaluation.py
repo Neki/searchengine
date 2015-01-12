@@ -19,8 +19,8 @@ class TestEvaluation(TestCase):
 
     def test_recall(self):
         request = Request(1, "tata", [1, 2, 3, 4, 5, 6, 7, 8])
-        search_result = [(1, 20), (3, 3)]
-        self.assertEqual(0.25, rappel(request, search_result))
+        search_result = [(1, 20), (3, 3), (42, 42)]
+        self.assertEqual(0.25, recall(request, search_result))
 
     @unittest.skip("Skipping until Travis CI is properly configured (this test blocks otherwise)")
     def test_plot_precision_rappel(self):
