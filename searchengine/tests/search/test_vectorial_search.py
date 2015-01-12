@@ -1,6 +1,7 @@
 from unittest import TestCase
-from searchengine.search.vectorial_search import similarity, build_weights_vectors
-
+from searchengine.search.vectorial_search import similarity, build_weights_vectors, vectorial_search
+from searchengine.parser import CacmDocument
+from searchengine.index.process import Weighting
 
 class TestVectorialSearch(TestCase):
 
@@ -21,3 +22,12 @@ class TestVectorialSearch(TestCase):
         self.assertEqual(l2[word_index], 1)
         self.assertEqual(l2[hey_index], 0)
         self.assertEqual(l2[nope_index], 4)
+    
+    def test_vectorial_search(self):
+        request = "tata"
+        document1 = CacmDocument(1, "aujourd \n toto \n tata","il fait \n tyty","toto \n tata tyty")
+        document2 = CacmDocument(2,"plouf \n paf","tata \n toto il tata","tyty plouf \n tata paf")
+        document_list = [document1, document2]
+        common_words=["aujourd","il","fait","ca","mot","ok"]
+        search_result = vectorial_search(request, document_list, common_words, 2,Weighting.TermFrequency)
+        self.assertEqual([(document2.doc_id,0.6882472016116852),(document1.doc_id,0.5773502691896258)],search_result)
