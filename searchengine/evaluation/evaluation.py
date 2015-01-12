@@ -21,6 +21,7 @@ def precision(request, search_results):
     """ 
     Number of relevant documents found over number of found documents
     """
+    print("relevant docs found = "+str(number_of_relevant_documents(request, search_results))+"on "+str(len(search_results)))
     return number_of_relevant_documents(request, search_results)/len(search_results)
     
 def rappel(request, search_results):
@@ -28,6 +29,22 @@ def rappel(request, search_results):
     Number of relevant documents found over number of relevant documents
     """
     return number_of_relevant_documents(request, search_results)/len(request.result)
+
+def courbe_rappel_precision(request, search_results):
+    fig, ax1 = plt.subplots()
+    plt.axis([0, 100, 0, 100])
+    plt.xlabel('Rappel')
+    plt.ylabel('Precision')
+    plt.title('Evaluation')
+    xaxis = []
+    yaxis = []
+    for rank in range(1,len(search_results)-1):
+        xaxis.append(rappel(request, search_results[0:rank])*100)
+        yaxis.append(precision(request, search_results[0:rank])*100)
+        print(" rappel x = " + str(xaxis[len(xaxis)-1]))
+        print(" precision y = " + str(yaxis[len(yaxis)-1]))
+    plt.plot(xaxis, yaxis,"o")
+    plt.show()
 
 def plot_precision_rappel(request, search_results):
     fig, ax1 = plt.subplots()
