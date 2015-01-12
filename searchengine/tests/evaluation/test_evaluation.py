@@ -1,3 +1,4 @@
+import unittest
 from unittest import TestCase
 from searchengine.evaluation.evaluation import *
 from searchengine.search.vectorial_search import vectorial_search
