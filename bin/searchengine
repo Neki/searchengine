@@ -98,7 +98,7 @@ def process_evaluation(args):
         print("Pertinant documents : \n")
         print(results[id])
         request = Request(id, requests[id],results[id])
-        eval_request("vectorial",get_weight_method(args.weight_method), request, documents, stop_words, args.answer_count)
+        eval_request(args.search_method, get_weight_method(args.weight_method), request, documents, stop_words, args.answer_count)
     except FileNotFoundError as e:
         print("Could not find the file at: {0}".format(e.filename), file=sys.stderr)
         sys.exit(1)
