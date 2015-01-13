@@ -43,7 +43,9 @@ def recall(request, search_results):
         return 0
     return number_of_relevant_documents(request, search_results)/len(request.result)
 
-def plot_precision_vs_recall(request, search_results, max_rank=100):
+def plot_precision_vs_recall(request, search_results, max_rank=None):
+    if max_rank is None:
+        max_rank = len(search_results)
     fig, ax1 = plt.subplots()
     plt.axis([-5, 105, -5, 105])
     plt.xlabel('Rappel')
