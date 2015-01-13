@@ -32,19 +32,19 @@ def main():
     parser.add_argument("-s", "--stop-words", help="path to the file "
             "containing a list of 'stop words' to ignore when indexing",
             default="resources/common_words")
-    parser.add_argument("-w", "--weight_method", help="The method used to perform the weight", default="tfidf",
+    parser.add_argument("-w", "--weight-method", help="how to compute the weights in the vectorial method", default="tfidf",
             choices=["tfidf","tf","ltf"])
 
-    parser_search = subparsers.add_parser('search', help='Search request')
+    parser_search = subparsers.add_parser('search', help='Perform a search')
     parser_search.add_argument("request", help="a request string")
-    parser_search.add_argument("-m", "--search_method", help="The method used to perform the search", default="vectorial",
+    parser_search.add_argument("-m", "--search-method", help="The method used to perform the search", default="vectorial",
             choices=["vectorial", "probabilistic", "boolean"])
 
 
-    parser_evaluation = subparsers.add_parser('eval', help='Request evaluation')
-    parser_evaluation.add_argument("request_id", help="a request number")
+    parser_evaluation = subparsers.add_parser('eval', help='Display the precision-recall plot for a given request')
+    parser_evaluation.add_argument("request_id", help="a request number", type=int)
     parser_evaluation.add_argument("-q", "--requests", help="path to the file containing the requests", default="resources/query.text")
-    parser_evaluation.add_argument("-r", "--results", help="path to the file containing the results", default="resources/qrels.text")
+    parser_evaluation.add_argument("-r", "--results", help="path to the file containing the expected results for each request", default="resources/qrels.text")
     parser_evaluation.add_argument("-m", "--search-method", help="The method used to perform the search", default="vectorial",
             choices=["vectorial", "probabilistic"])
 
