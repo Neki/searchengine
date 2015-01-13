@@ -39,7 +39,7 @@ def recall(request, search_results):
     """
     Number of relevant documents found over total number of relevant documents in the collection.
     """
-    if len(search_results) == 0:
+    if len(request.result) == 0:
         return 0
     return number_of_relevant_documents(request, search_results)/len(request.result)
 
