@@ -1,5 +1,5 @@
 from enum import Enum
-from searchengine.evaluation.evaluation import Request
+
 
 class FieldType(Enum):
     id = 1,
@@ -16,23 +16,14 @@ class InvalidRequest(Exception):
 
 def load_from_query_file(path):
     """
-    Parameter:
-        path (string) - path to the CACM collection file
-    Yields:
-        Each document in the collection
-    Example:
-        >>> for document in load_from_cacm("/ressources/cacm.all"):
-        >>>    process(document)
+    Returns:
+        (dict of int to string) a dictionnary mapping requests ID to request content
     """
     with open(path) as f:
         return load_from_query(f)
 
 
 def load_from_query(f):
-    """
-    Similar to load_from_cacm, excepts that it takes a file object as a
-    parameter instead of a path.
-    """
     out = {}
     eof = False
     while not eof:

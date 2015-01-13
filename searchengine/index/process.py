@@ -166,7 +166,7 @@ class DocStats:
                 raise ValueError("An index must be provided to compute the tf-idf weights")
             return  self.__tf_idf_weights(index)
         else:
-            raise ValueError("Unsupported weighting method")
+            raise ValueError("Unsupported weighting method: {0}".format(weighting))
 
     @property
     def words(self):
