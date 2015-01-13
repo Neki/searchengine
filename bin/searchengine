@@ -17,9 +17,6 @@ class UnknownMethodError(Exception):
         super().__init__(message)
         self.method_name = method_name
 
-class InvalidId(Exception):
-    def __init__(self,message):
-        super().__init__(message)
 
 def main():
     parser = argparse.ArgumentParser(description="A simple text search tool.")
@@ -92,8 +89,9 @@ def process_evaluation(args):
         results = load_from_results_file(args.results)
         id = int(args.request_id)
         if id not in requests.keys() or id not in results.keys():
-            raise InvalidId("Wrong request number. Must be in [1,64]")
-        print("Request : \n")
+            print("No request with id {0} found".format(id))
+            sys.exit(1)
+        print("Request:")
         print(requests[id])
         print("Pertinant documents : \n")
         print(results[id])
