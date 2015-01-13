@@ -45,7 +45,7 @@ def main():
     parser_evaluation.add_argument("request_id", help="a request number")
     parser_evaluation.add_argument("-q", "--requests", help="path to the file containing the requests", default="resources/query.text")
     parser_evaluation.add_argument("-r", "--results", help="path to the file containing the results", default="resources/qrels.text")
-    parser_evaluation.add_argument("-m", "--search_method", help="The method used to perform the search", default="vectorial",
+    parser_evaluation.add_argument("-m", "--search-method", help="The method used to perform the search", default="vectorial",
             choices=["vectorial", "probabilistic"])
 
     parser_search.set_defaults(func=process_search)
