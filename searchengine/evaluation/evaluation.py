@@ -31,7 +31,6 @@ def precision(request, search_results):
     """
     Number of relevant documents found in `search_results` over total number of documents.
     """
-    print("relevant docs found = "+str(number_of_relevant_documents(request, search_results))+" on "+str(len(search_results)))
     if len(search_results) == 0:
         return 1
     return number_of_relevant_documents(request, search_results)/len(search_results)
@@ -58,8 +57,6 @@ def plot_precision_vs_recall(request, search_results, max_rank=None):
     interpolated_points = _interpolate_precision(points, max_rank)
     xs = [p[0] * 100 for p in interpolated_points]
     ys = [p[1] * 100 for p in interpolated_points]
-    print(xs)
-    print(ys)
     plt.plot(xs, ys, "o")
     plt.show()
 
