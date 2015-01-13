@@ -25,6 +25,16 @@ class TestEvaluation(TestCase):
         request2 = Request(2, "tata", [])
         self.assertEqual(0, recall(request2, search_result))
 
+    def test_interpolation(self):
+        data = PrecisionRecallData([(0,1), (0.2, 0.7), (0.5, 0.4), (0.7, 0.2)])
+        self.assertEqual(data.points, data.interpolated_points)
+        data = PrecisionRecallData([(0,1), (0, 0), (0.2, 0.7), (0.2, 0.4), (0.6, 0.2), (0.7, 0.3)])
+        self.assertEqual([(0, 1), (0.2, 0.7), (0.6, 0.3), (0.7, 0.3)], data.interpolated_points)
+        self.assertEqual(1, data.precision_for(0.1))
+        self.assertEqual(0.3, data.precision_for(0.6))
+        self.assertEqual(0.3, data.precision_for(0.65))
+        self.assertEqual(0.7, data.precision_for(0.5))
+
     @unittest.skip("Skipping until Travis CI is properly configured (this test blocks otherwise)")
     def test_plot_precision_recall(self):
         request = Request(1,"tata",[1,2])
