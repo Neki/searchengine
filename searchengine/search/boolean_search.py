@@ -13,6 +13,9 @@ class Node:
 
 
 class AndNode(Node):
+    """
+    Node representing the AND operator. This node has two children.
+    """
     def __init__(self, left, right):
         super().__init__(left, right)
 
@@ -24,6 +27,9 @@ class AndNode(Node):
 
 
 class OrNode(Node):
+    """
+    Node representing the OR operator. This node has two children.
+    """
     def __init__(self, left, right):
         super().__init__(left, right)
 
@@ -35,6 +41,9 @@ class OrNode(Node):
 
 
 class NotNode(Node):
+    """
+    Node representing the NOT operator. This node has one child.
+    """
     def __init__(self, right, index):
         super().__init__(right)
         self.index = index
@@ -48,6 +57,9 @@ class NotNode(Node):
 
 
 class WordNode(Node):
+    """
+    Node representing the a word.
+    """
     def __init__(self, index, word):
         self.index = index
         self.word = word
@@ -202,6 +214,10 @@ def _build_node(node_type, index, stack, output):
 
 
 def boolean_search(request, document_list, common_words, answer_count=None):
+    """
+    Parameters : request, list of documents, common words
+    Returns : the evaluation of the request using the boolean method
+    """
     index = InvertedIndex(common_words, document_list)
     request_tree = build_tree(request, index)
     return request_tree.eval()

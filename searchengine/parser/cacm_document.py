@@ -66,6 +66,9 @@ def load_from_cacm(f):
 
 
 def _get_next_cacm_document(f):
+    """
+    Reads next document from file
+    """
     doc_id = _read_document_id(f)
     title = None
     keywords = None
@@ -87,6 +90,9 @@ def _get_next_cacm_document(f):
 
 
 def _read_document_id(f):
+    """
+    Reads document's id from file
+    """
     first_line = f.readline()
     if not _is_beginning_document_(first_line):
         raise InvalidCacmDocument(f.tell(), "First line of a document must"
@@ -95,6 +101,9 @@ def _read_document_id(f):
 
 
 def _get_next_field_type(f):
+    """
+    Returns next field type of a file
+    """
     last_pos = f.tell()
     type_id = f.readline().strip()
     if type_id == ".T":
@@ -121,15 +130,24 @@ def _get_next_field_type(f):
 
 
 def _is_field_declarator(line):
+    """
+    Returns true if line is a filed declarator, false otherwise
+    """
     type_id = line.strip()
     return type_id in [".T", ".W", ".A", ".N", ".X", ".K", ".B"]
 
 
 def _is_beginning_document_(line):
+    """"
+    Returns true if line is the beginning of a new document, false otherwise
+    """
     return line.strip().startswith(".I")
 
 
 def _read_field_data(f):
+    """
+    Reads field data
+    """
     out = []
     last_pos = f.tell()
 

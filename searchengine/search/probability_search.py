@@ -3,6 +3,10 @@ from searchengine.parser import RequestDocument
 
 
 def binary_independance_retrieval(request, document_list, common_words, nb_answers):
+    """
+    Parameters: request, list of documents, common words and number of answers required
+    Result : a sorted list of k document ids ranked by pertinence
+    """
     request_doc = RequestDocument(request)
     request_index = InvertedIndex(common_words, [request_doc])
     index = InvertedIndex(common_words, document_list)

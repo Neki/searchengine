@@ -4,6 +4,10 @@ from searchengine.parser import RequestDocument
 
 
 def vectorial_search(request, document_list, common_words, nb_answers, weighting_method):
+    """
+    Parameters : a request, documents list, common words, number of answers and weighting method
+    Result : a list of k document ids ranked by pertinence
+    """
     out = []  # list of pairs (doc_id, pertinence)
     request_doc = RequestDocument(request)
     request_index = InvertedIndex(common_words, [request_doc])
@@ -20,6 +24,9 @@ def vectorial_search(request, document_list, common_words, nb_answers, weighting
 
 
 def similarity(l1, l2):
+    """
+    Returns the similarity between l1 and l2
+    """
     assert(len(l1) == len(l2))
     assert(len(l1) > 0)
     scalar = 0

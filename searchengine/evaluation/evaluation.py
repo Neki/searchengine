@@ -3,13 +3,18 @@ from searchengine.search.vectorial_search import vectorial_search
 import matplotlib.pyplot as plt
 
 class Request:
-
     def __init__(self, id, text, result):
         self.id = id
         self.text = text
         self.result = result # list of doc ids
 
 def number_of_relevant_documents(request, search_results):
+    """
+    Parameters:
+        request, search results
+    Returns:
+        Number of relevant documents in the search_results
+    """
     out = 0
     for doc_id in request.result:
         for res in search_results:
@@ -18,15 +23,21 @@ def number_of_relevant_documents(request, search_results):
     return out
 
 def precision(request, search_results):
-    """ 
-    Number of relevant documents found over number of found documents
+    """
+    Parameters:
+        request, search results
+    Returns:
+        Number of relevant documents found over number of found documents
     """
     print("relevant docs found = "+str(number_of_relevant_documents(request, search_results))+"on "+str(len(search_results)))
     return number_of_relevant_documents(request, search_results)/len(search_results)
     
 def rappel(request, search_results):
-    """ 
-    Number of relevant documents found over number of relevant documents
+    """
+    Parameters:
+        request, search results
+    Returns:
+        Number of relevant documents found over number of relevant documents
     """
     return number_of_relevant_documents(request, search_results)/len(request.result)
 

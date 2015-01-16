@@ -146,7 +146,7 @@ class DocStats:
     def __init__(self, frequency, nb_words):
         """
         Parameters:
-            frequency (dict): a dictionnary mapping words to their number of occurences
+            frequency (dict): a dictionary mapping words to their number of occurences
             nb_words (int): the number of words in the document.
         """
         self.frequency = frequency
@@ -155,7 +155,7 @@ class DocStats:
     def weights(self, weighting=Weighting.TermFrequency, index=None):
         """
         Returns:
-            a dictionnary mapping each word in the document to a weight
+            a dictionary mapping each word in the document to a weight
         """
         if weighting == Weighting.TermFrequency:
             return self.__term_frequency_weights()
@@ -173,12 +173,21 @@ class DocStats:
         return self.frequency.keys()
 
     def __term_frequency_weights(self):
+        """
+        Returns:
+            a dictionary mapping each word in the document to a tf weight
+        """
         out = {}
         for word in self.frequency.keys():
             out[word] = self.frequency[word]
         return out
 
     def __log_term_frequency_weights(self):
+        """
+        Returns:
+            a dictionary mapping each word in the document to a ltf weight
+        """
+        out 
         out = {}
         for word in self.frequency.keys():
             if self.frequency[word] > 0:
@@ -186,6 +195,11 @@ class DocStats:
         return out
 
     def __tf_idf_weights(self, index):
+        """
+        Returns:
+            a dictionary mapping each word in the document to a tf-idf weight
+        """
+        out 
         out = {}
         for word in self.frequency.keys():
             dft = index.get_nb_docs_with_word(word)
