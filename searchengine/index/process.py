@@ -187,7 +187,6 @@ class DocStats:
         Returns:
             a dictionary mapping each word in the document to a ltf weight
         """
-        out 
         out = {}
         for word in self.frequency.keys():
             if self.frequency[word] > 0:
@@ -199,7 +198,6 @@ class DocStats:
         Returns:
             a dictionary mapping each word in the document to a tf-idf weight
         """
-        out 
         out = {}
         for word in self.frequency.keys():
             dft = index.get_nb_docs_with_word(word)
