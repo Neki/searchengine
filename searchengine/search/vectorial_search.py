@@ -1,4 +1,4 @@
-from searchengine.index.process import InvertedIndex
+from searchengine.index.process import Index
 from math import sqrt
 from searchengine.parser import RequestDocument
 
@@ -10,8 +10,8 @@ def vectorial_search(request, document_list, common_words, nb_answers, weighting
     """
     out = []  # list of pairs (doc_id, pertinence)
     request_doc = RequestDocument(request)
-    request_index = InvertedIndex(common_words, [request_doc])
-    index = InvertedIndex(common_words, document_list)
+    request_index = Index(common_words, [request_doc])
+    index = Index(common_words, document_list)
     request_weights = request_index.get_weights(request_doc.doc_id, weighting_method, index)
     for doc_id in index.doc_ids:
         doc_weights = index.get_weights(doc_id, weighting_method, index)

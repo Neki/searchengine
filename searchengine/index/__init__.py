@@ -1,1 +1,1 @@
-from .process import InvertedIndex
+from .process import Index

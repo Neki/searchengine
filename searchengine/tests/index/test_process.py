@@ -39,7 +39,7 @@ class TestIndex(TestCase):
 
     def test_add_document(self):
         document = CacmDocument(2, "title", "abstract", "keywords")
-        index = InvertedIndex([])
+        index = Index([])
         self.assertEqual(0, index.nb_documents)
 
         index.add_document(document)
@@ -55,39 +55,39 @@ class TestIndex(TestCase):
 
     def test_no_repetition(self):
         document = CacmDocument(2, "title", "abstract", "keywords")
-        index = InvertedIndex([], [document])
+        index = Index([], [document])
         self.assertRaises(ValueError, index.add_document, document)
 
     def test_weights(self):
         document = CacmDocument(2, "title title", "abstract", "keywords")
-        index = InvertedIndex([], [document])
+        index = Index([], [document])
         weights = index.get_weights(2)
         self.assertEqual(2, weights["title"])
         self.assertEqual(1, weights["abstract"])
 
     def test_common_words(self):
         document = CacmDocument(2, "common title", "not so common abstract", "unusual keywords")
-        index = InvertedIndex(["common", "not", "so"], [document])
+        index = Index(["common", "not", "so"], [document])
         self.assertCountEqual(["title", "abstract", "unusual", "keywords"], index.words)
 
     def test_word_count(self):
         document = CacmDocument(1, "title", "abstract abstract", "keywords")
         document2 = CacmDocument(2, "title", "abstract", "keywords")
-        index = InvertedIndex([], [document, document2])
+        index = Index([], [document, document2])
         self.assertEqual(3, index.get_word_count("abstract"))
 
     def test_word_list(self):
         document = CacmDocument(1, "title", "abstract abstract", "keywords")
         document2 = CacmDocument(2, "title", "abstract", "keywords")
         document3 = CacmDocument(3, "title", "notanabstract", "keywords")
-        index = InvertedIndex([], [document, document2, document3])
+        index = Index([], [document, document2, document3])
         self.assertCountEqual([1, 2], index.get_doc_ids_containing("abstract"))
 
     def test_nb_documents_with_word(self):
         document = CacmDocument(1, "title", "abstract abstract", "keywords")
         document2 = CacmDocument(2, "title", "abstract", "keywords")
         document3 = CacmDocument(3, "title", "summary", "keywords")
-        index = InvertedIndex([], [document, document2, document3])
+        index = Index([], [document, document2, document3])
         self.assertEqual(0, index.get_nb_docs_with_word("notreallyaword"))
         self.assertEqual(2, index.get_nb_docs_with_word("abstract"))
 

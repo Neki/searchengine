@@ -1,6 +1,6 @@
 from unittest import TestCase
 from searchengine.search.boolean_search import WordNode, build_tree, tokenize_request, MismatchedParens, add_missing_ands, InvalidRequest, boolean_search
-from searchengine.index.process import InvertedIndex
+from searchengine.index.process import Index
 from searchengine.parser.cacm_document import CacmDocument
 
 
@@ -9,7 +9,7 @@ class TestBooleanSearch(TestCase):
     def test_word_eval(self):
         document = CacmDocument(1, "common title", "not so common abstract", "unusual keywords")
         document2 = CacmDocument(2, "common title", "not so common abstract", "goal")
-        index = InvertedIndex(["common", "not", "so"], [document, document2])
+        index = Index(["common", "not", "so"], [document, document2])
         word_node = WordNode(index, "goal")
         self.assertCountEqual([2], word_node.eval())
 

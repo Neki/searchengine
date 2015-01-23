@@ -1,6 +1,5 @@
 from unittest import TestCase
 from searchengine.search.probability_search import binary_independance_retrieval
-from searchengine.index.process import InvertedIndex
 from searchengine.parser.cacm_document import CacmDocument
 
 

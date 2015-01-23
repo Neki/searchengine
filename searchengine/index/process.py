@@ -9,7 +9,7 @@ class Weighting(Enum):
     Tf_Idf = 3
 
 
-class InvertedIndex:
+class Index:
     def __init__(self, common_words, documents=None):
         self.__index = {}  # a dict mapping words to TermInfo
         self.__stats = {}  # a dict mapping doc IDs to DocStats
@@ -77,7 +77,7 @@ class InvertedIndex:
         Parameter:
             doc_id (int): a document ID. This document must be present in the index.
             weighting_method (Weighting): the method used to compute the weight of each term in the document
-            corpus_index (InvertedIndex): used only for the method Tf_Idf, the index for the corpus (not of the request). This parameter is ignored for other weighting methods.
+            corpus_index (Index): used only for the method Tf_Idf, the index for the corpus (not of the request). This parameter is ignored for other weighting methods.
         Returns:
             A dict mapping the words in the given document to their weights.
         """
@@ -101,7 +101,7 @@ class InvertedIndex:
     def probability_rsv(self, request_index, doc_id):
         """
         Parameters:
-            request_index (InvertedIndex)
+            request_index (Index)
             doc_id (int)
         Returns:
           (float) The retrieval status value for the document (relative to the given request), under the PRP (probability ranking principe) model and the BIR (binary independance retrieval) hypothesis

@@ -1,6 +1,6 @@
 import string
 import re
-from searchengine.index.process import InvertedIndex
+from searchengine.index.process import Index
 
 
 class Node:
@@ -85,7 +85,7 @@ def build_tree(request, index):
     Build a request boolean tree from a request.
     Parameters:
         request (str): a request ("a and (b or c)")
-        index (InvertedIndex)
+        index (Index)
     Returns:
         (Node) the root node of the request tree
     """
@@ -133,7 +133,7 @@ def tokens_to_node(tokens, index):
     Transforms a list of tokens into a boolean tree. Respects operator precedence and parenthesis.
     Parameters:
         tokens (list of str)
-        index (InvertedIndex)
+        index (Index)
     Returns:
         Node
     """
@@ -218,7 +218,7 @@ def boolean_search(request, document_list, common_words, answer_count=None):
     Parameters : request, list of documents, common words
     Returns : the evaluation of the request using the boolean method
     """
-    index = InvertedIndex(common_words, document_list)
+    index = Index(common_words, document_list)
     request_tree = build_tree(request, index)
     return request_tree.eval()
 
