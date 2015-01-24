@@ -44,11 +44,15 @@ def recall(request, search_results):
     return number_of_relevant_documents(request, search_results)/len(request.result)
 
 def plot_precision_vs_recall(request, search_results, max_rank=None):
+    """
+    Parameters: a request, its search results and a rank
+    Displays a graph with recall as abscissa and precision as ordinate
+    """
     if max_rank is None:
         max_rank = len(search_results)
     fig, ax1 = plt.subplots()
     plt.axis([-5, 105, -5, 105])
-    plt.xlabel('Rappel')
+    plt.xlabel('Recall')
     plt.ylabel('Precision')
     plt.title('Evaluation')
     precisions = [precision(request, search_results[:rank]) for rank in range(0, min(len(search_results), max_rank))]

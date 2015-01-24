@@ -108,9 +108,9 @@ def process_evaluation(args):
         if id not in results:
             print("Expected results for the request {0} not known".format(id))
             sys.exit(1)
-        print("Request:")
-        print(requests[id])
-        print("Pertinant documents:")
+        #print("Request:")
+        #print(requests[id])
+        print("\nPertinant documents:")
         print(results[id])
         request = Request(id, requests[id],results[id])
         eval_request(args.search_method, index, get_weight_method(args.weight_method), request, args.answer_count)
@@ -135,7 +135,7 @@ def display_results(results):
 
 def eval_request(search_method, index, weight_method, request, answer_count):
     search_results = dispatch_search(search_method, index, weight_method, request.text, answer_count)
-    print("\nOur search results:")
+    print("\nSearch results:")
     print(search_results)
     plot_precision_vs_recall(request, search_results)
 
