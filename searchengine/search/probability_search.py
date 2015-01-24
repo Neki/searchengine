@@ -1,4 +1,4 @@
-from searchengine.index.process import Index
+from searchengine.index.index import Index
 from searchengine.parser import RequestDocument
 
 

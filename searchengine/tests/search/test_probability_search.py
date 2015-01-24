@@ -1,7 +1,7 @@
 from unittest import TestCase
 from searchengine.search.probability_search import binary_independance_retrieval
 from searchengine.parser.cacm_document import CacmDocument
-from searchengine.index.process import Index
+from searchengine.index.index import Index
 
 
 class TestProbabilitySearch(TestCase):

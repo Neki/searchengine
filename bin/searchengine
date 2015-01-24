@@ -5,11 +5,11 @@ import sys
 
 from searchengine.parser import load_from_cacm_file
 from searchengine.search import vectorial_search, boolean_search, binary_independance_retrieval
-from searchengine.index.process import Weighting, Index
+from searchengine.index.index import Weighting, Index
 from searchengine.evaluation.evaluation import plot_precision_vs_recall, Request, plot_avg_precision
 from searchengine.parser.query import load_from_query_file
 from searchengine.parser.result import load_from_results_file
-from searchengine.index.process import Weighting
+from searchengine.index.index import Weighting
 
 class UnknownMethodError(Exception):
 

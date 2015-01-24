@@ -1,6 +1,6 @@
 from unittest import TestCase
 from searchengine.search.boolean_search import WordNode, build_tree, tokenize_request, MismatchedParens, add_missing_ands, InvalidRequest, boolean_search
-from searchengine.index.process import Index
+from searchengine.index.index import Index
 from searchengine.parser.cacm_document import CacmDocument
 
 

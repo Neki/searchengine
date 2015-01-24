@@ -1,7 +1,7 @@
 from unittest import TestCase
 from searchengine.search.vectorial_search import similarity, build_weights_vectors, vectorial_search
 from searchengine.parser import CacmDocument
-from searchengine.index.process import Weighting, Index
+from searchengine.index.index import Weighting, Index
 
 class TestVectorialSearch(TestCase):
 

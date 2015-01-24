@@ -3,7 +3,7 @@ from unittest import TestCase
 from searchengine.evaluation.evaluation import *
 from searchengine.search.vectorial_search import vectorial_search
 from searchengine.parser import CacmDocument
-from searchengine.index.process import Weighting
+from searchengine.index.index import Weighting
 
 class TestEvaluation(TestCase):
 

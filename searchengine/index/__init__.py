@@ -1,1 +1,1 @@
-from .process import Index
+from .index import Index
