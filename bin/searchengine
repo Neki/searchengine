@@ -134,7 +134,7 @@ def display_results(results):
     print(results)
 
 def eval_request(search_method, index, weight_method, request, answer_count):
-    search_results = dispatch_search(search_method, index, weight_method, request.text, stop_words, answer_count)
+    search_results = dispatch_search(search_method, index, weight_method, request.text, answer_count)
     print("\nOur search results:")
     print(search_results)
     plot_precision_vs_recall(request, search_results)
