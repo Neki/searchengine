@@ -5,8 +5,8 @@ import sys
 
 from searchengine.parser import load_from_cacm_file
 from searchengine.search import vectorial_search, boolean_search, binary_independance_retrieval
-from searchengine.index.process import Weighting
-from searchengine.evaluation.evaluation import plot_precision_rappel, Request, courbe_rappel_precision
+from searchengine.index.process import Weighting, Index
+from searchengine.evaluation.evaluation import plot_precision_vs_recall, Request, plot_avg_precision
 from searchengine.parser.query import load_from_query_file
 from searchengine.parser.result import load_from_results_file
 from searchengine.index.process import Weighting
@@ -17,9 +17,6 @@ class UnknownMethodError(Exception):
         super().__init__(message)
         self.method_name = method_name
 
-class InvalidId(Exception):
-    def __init__(self,message):
-        super().__init__(message)
 
 def main():
     parser = argparse.ArgumentParser(description="A simple text search tool.")
@@ -32,20 +29,20 @@ def main():
     parser.add_argument("-s", "--stop-words", help="path to the file "
             "containing a list of 'stop words' to ignore when indexing",
             default="resources/common_words")
-    parser.add_argument("-w", "--weight_method", help="The method used to perform the weight", default="tfidf",
+    parser.add_argument("-w", "--weight-method", help="how to compute the weights in the vectorial method", default="tfidf",
             choices=["tfidf","tf","ltf"])
 
-    parser_search = subparsers.add_parser('search', help='Search request')
+    parser_search = subparsers.add_parser('search', help='Perform a search')
     parser_search.add_argument("request", help="a request string")
-    parser_search.add_argument("-m", "--search_method", help="The method used to perform the search", default="vectorial",
+    parser_search.add_argument("-m", "--search-method", help="The method used to perform the search", default="vectorial",
             choices=["vectorial", "probabilistic", "boolean"])
 
 
-    parser_evaluation = subparsers.add_parser('eval', help='Request evaluation')
-    parser_evaluation.add_argument("request_id", help="a request number")
+    parser_evaluation = subparsers.add_parser('eval', help='Display the precision-recall plot for a given request')
+    parser_evaluation.add_argument("request_id", help="a request number. Set to 0 to evaluate all requests.", type=int)
     parser_evaluation.add_argument("-q", "--requests", help="path to the file containing the requests", default="resources/query.text")
-    parser_evaluation.add_argument("-r", "--results", help="path to the file containing the results", default="resources/qrels.text")
-    parser_evaluation.add_argument("-m", "--search_method", help="The method used to perform the search", default="vectorial",
+    parser_evaluation.add_argument("-r", "--results", help="path to the file containing the expected results for each request", default="resources/qrels.text")
+    parser_evaluation.add_argument("-m", "--search-method", help="The method used to perform the search", default="vectorial",
             choices=["vectorial", "probabilistic"])
 
     parser_search.set_defaults(func=process_search)
@@ -56,14 +53,15 @@ def main():
 def process_search(args):
     try:
         if args.collection_type == "cacm":
-            # documents is an iterator
             documents = load_from_cacm_file(args.collection)
         elif args.collection_type == "wikipedia":
             raise NotImplementedError("Wikipedia parser is not implemented yet.")
         stop_words = None
         with open(args.stop_words) as f:
             stop_words = f.read()
-        display_results(args.search_method, get_weight_method(args.weight_method), args.request, documents, stop_words, args.answer_count)
+        index = Index(stop_words, list(documents))
+        results = dispatch_search(args.search_method, index, get_weight_method(args.weight_method), args.request, args.answer_count)
+        display_results(results)
     except FileNotFoundError as e:
         print("Could not find the file at: {0}".format(e.filename), file=sys.stderr)
         sys.exit(1)
@@ -81,8 +79,7 @@ def get_weight_method(arg_weight_method):
 def process_evaluation(args):
     try:
         if args.collection_type == "cacm":
-            # documents is an iterator
-            documents = load_from_cacm_file(args.collection)
+            documents = list(load_from_cacm_file(args.collection))
         elif args.collection_type == "wikipedia":
             raise NotImplementedError("Wikipedia parser is not implemented yet.")
         stop_words = None
@@ -91,38 +88,56 @@ def process_evaluation(args):
         requests = load_from_query_file(args.requests)
         results = load_from_results_file(args.results)
         id = int(args.request_id)
-        if id not in requests.keys() or id not in results.keys():
-            raise InvalidId("Wrong request number. Must be in [1,64]")
-        print("Request : \n")
+        index = Index(stop_words, documents)
+
+        if id == 0:
+            # TODO: move to another function
+            request_list = []
+            search_results = {}
+            for request_id, request in requests.items():
+                if request_id in results:
+                    r = Request(request_id, requests[request_id], results[request_id])
+                    request_list.append(r)
+                    search_results[request_id] = dispatch_search(args.search_method, index, get_weight_method(args.weight_method), request, args.answer_count)
+            plot_avg_precision(request_list, search_results)
+            sys.exit(0)
+
+        if id not in requests:
+            print("No request with id {0} found".format(id))
+            sys.exit(1)
+        if id not in results:
+            print("Expected results for the request {0} not known".format(id))
+            sys.exit(1)
+        print("Request:")
         print(requests[id])
-        print("Pertinant documents : \n")
+        print("Pertinant documents:")
         print(results[id])
         request = Request(id, requests[id],results[id])
-        eval_request("vectorial",get_weight_method(args.weight_method), request, documents, stop_words, args.answer_count)
+        eval_request(args.search_method, index, get_weight_method(args.weight_method), request, args.answer_count)
     except FileNotFoundError as e:
         print("Could not find the file at: {0}".format(e.filename), file=sys.stderr)
         sys.exit(1)
 
-def dispatch_search(search_method,weight_method, request, documents, stop_words, answer_count):
+def dispatch_search(search_method, index, weight_method, request, answer_count):
     results = None
     if search_method == "vectorial":
-        results = vectorial_search(request, list(documents), stop_words, answer_count, weight_method)
+        results = vectorial_search(request, index, answer_count, weight_method)
     elif search_method == "boolean":
-        results = boolean_search(request, list(documents), stop_words, answer_count)
-    elif method == "probabilistic":
-        results = binary_independance_retrieval(request, list(documents), stop_words, answer_count)
+        results = boolean_search(request, index)
+    elif search_method == "probabilistic":
+        results = binary_independance_retrieval(request, index, answer_count)
     else:
         raise UnknownMethodError("Method {0} is not supported".format(method), method)
     return results
 
-def display_results(search_method, weight_method, request, documents, stop_words, answer_count):
-    print(dispatch_search(search_method, weight_method, request, documents, stop_words, answer_count))
+def display_results(results):
+    print(results)
 
-def eval_request(search_method, weight_method, request, documents, stop_words, answer_count):
-    search_results = dispatch_search(search_method, weight_method, request.text, documents, stop_words, answer_count)
-    print("\nOur search results :")
+def eval_request(search_method, index, weight_method, request, answer_count):
+    search_results = dispatch_search(search_method, index, weight_method, request.text, stop_words, answer_count)
+    print("\nOur search results:")
     print(search_results)
-    courbe_rappel_precision(request, search_results)
+    plot_precision_vs_recall(request, search_results)
 
 if __name__ == "__main__":
     try:

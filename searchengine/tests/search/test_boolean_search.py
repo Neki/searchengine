@@ -42,12 +42,13 @@ class TestBooleanSearch(TestCase):
         document3 = CacmDocument(3, "my common title", "some abstract here", "goal")
         document_list = [document, document2, document3]
         common_words = ["common", "no", "so"]
+        index = Index(common_words, document_list)
         request = "(not common and goal) or target"
-        self.assertCountEqual([3, 2], boolean_search(request, document_list, common_words))
+        self.assertCountEqual([3, 2], boolean_search(request, index))
         request = "((common and goal) or target) and not here"
-        self.assertCountEqual([2], boolean_search(request, document_list, []))
-        request = "title common"
-        self.assertCountEqual([1, 2, 3], boolean_search(request, document_list, []))
+        self.assertCountEqual([2], boolean_search(request, index))
+        request = "title"
+        self.assertCountEqual([1, 2, 3], boolean_search(request, index))
 
 
 

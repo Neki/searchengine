@@ -2,14 +2,13 @@ from searchengine.index.process import Index
 from searchengine.parser import RequestDocument
 
 
-def binary_independance_retrieval(request, document_list, common_words, nb_answers):
+def binary_independance_retrieval(request, index, nb_answers):
     """
     Parameters: request, list of documents, common words and number of answers required
     Result : a sorted list of k document ids ranked by pertinence
     """
     request_doc = RequestDocument(request)
-    request_index = Index(common_words, [request_doc])
-    index = Index(common_words, document_list)
+    request_index = Index(index.common_words, [request_doc])
     out = []
     for doc_id in index.doc_ids:
         rsv = index.probability_rsv(request_index, doc_id)

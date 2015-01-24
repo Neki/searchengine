@@ -1,6 +1,5 @@
 import string
 import re
-from searchengine.index.process import Index
 
 
 class Node:
@@ -213,12 +212,11 @@ def _build_node(node_type, index, stack, output):
     #print("applied operator: output : {0} / stack : {1}".format(output, stack))
 
 
-def boolean_search(request, document_list, common_words, answer_count=None):
+def boolean_search(request, index):
     """
-    Parameters : request, list of documents, common words
+    Parameters : request, index
     Returns : the evaluation of the request using the boolean method
     """
-    index = Index(common_words, document_list)
     request_tree = build_tree(request, index)
     return request_tree.eval()
 
