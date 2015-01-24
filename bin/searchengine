@@ -124,6 +124,10 @@ def process_evaluation(args):
         sys.exit(1)
 
 def dispatch_search(search_method, index, weight_method, request, answer_count):
+    """
+    Parameters : search method, index, weight method, request and number of answers required
+    Return : This method returns search results according to the search method selected by user (boolean, vectorial, probabilistic)
+    """
     results = None
     if search_method == "vectorial":
         results = vectorial_search(request, index, answer_count, weight_method)
@@ -152,6 +156,9 @@ def eval_all_requests(requests, results, search_method, index, weight_method, an
     plot_avg_precision(request_list, search_results)    
     
 def eval_request(search_method, index, weight_method, request, answer_count):
+    """
+    This method prints search results for a specific request, and plots a graph with (recall, precision)
+    """
     search_results = dispatch_search(search_method, index, weight_method, request.text, answer_count)
     print("\nSearch results:")
     print(search_results)
