@@ -51,6 +51,10 @@ def main():
     args.func(args)
 
 def process_search(args):
+    """
+    Parameters : args
+    Creates an index and get the search results before printing them
+    """
     try:
         if args.collection_type == "cacm":
             documents = load_from_cacm_file(args.collection)
@@ -67,6 +71,10 @@ def process_search(args):
         sys.exit(1)
 
 def get_weight_method(arg_weight_method):
+    """
+    Parameter : Weight method entered by user
+    Returns : Corresponding weight method enum
+    """
     if arg_weight_method == "tfidf":
         return Weighting.Tf_Idf
     elif arg_weight_method == "ltf":
@@ -77,6 +85,11 @@ def get_weight_method(arg_weight_method):
         raise 'wrong weight method'
 
 def process_evaluation(args):
+    """
+    Parameters : args entered by user
+    Method loads requests from the requests file, and corresponding results from the results file.
+    It builds the index.
+    """
     try:
         if args.collection_type == "cacm":
             documents = list(load_from_cacm_file(args.collection))
@@ -91,15 +104,7 @@ def process_evaluation(args):
         index = Index(stop_words, documents)
 
         if id == 0:
-            # TODO: move to another function
-            request_list = []
-            search_results = {}
-            for request_id, request in requests.items():
-                if request_id in results:
-                    r = Request(request_id, requests[request_id], results[request_id])
-                    request_list.append(r)
-                    search_results[request_id] = dispatch_search(args.search_method, index, get_weight_method(args.weight_method), request, args.answer_count)
-            plot_avg_precision(request_list, search_results)
+            eval_all_requests(requests, results, args.search_method, index, get_weight_method(args.weight_method),args.answer_count)
             sys.exit(0)
 
         if id not in requests:
@@ -133,6 +138,19 @@ def dispatch_search(search_method, index, weight_method, request, answer_count):
 def display_results(results):
     print(results)
 
+def eval_all_requests(requests, results, search_method, index, weight_method, answer_count):
+    """
+    This method plots the average precision for all requests and search results.
+    """
+    request_list = []
+    search_results = {}
+    for request_id, request in requests.items():
+        if request_id in results:
+            r = Request(request_id, requests[request_id], results[request_id])
+            request_list.append(r)
+            search_results[request_id] = dispatch_search(search_method, index, weight_method, request, answer_count)
+    plot_avg_precision(request_list, search_results)    
+    
 def eval_request(search_method, index, weight_method, request, answer_count):
     search_results = dispatch_search(search_method, index, weight_method, request.text, answer_count)
     print("\nSearch results:")
