@@ -31,7 +31,6 @@ class PrecisionRecallData:
         cleaned = []
         for k, g in itertools.groupby(points, lambda x: x[0]):
             cleaned.append(max(g, key=lambda x: x[1]))
-
         interpolated_points = [None] * len(cleaned)
         interpolated_points[-1] = cleaned[-1]
 
@@ -46,8 +45,10 @@ class PrecisionRecallData:
         Parameters:
         recall_level (int): a recall value between 0 and 1
         Returns:
-        (int) the corresponding interpolated precision value
+        (int) the corresponding interpolated precision value. If `recall_level` is greater than the max recall for this data set, returns 0.
         """
+        if recall_level > self.__interpolated_points[-1][0]:
+            return 0
         # Binary search
         i = bisect.bisect_right([p[0] for p in self.__interpolated_points], recall_level)
         if i > 0:
