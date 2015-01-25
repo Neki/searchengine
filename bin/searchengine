@@ -154,8 +154,8 @@ def eval_all_requests(requests, results, search_method, index, weight_method, an
             r = Request(request_id, requests[request_id], results[request_id])
             request_list.append(r)
             search_results[request_id] = dispatch_search(search_method, index, weight_method, request, answer_count)
-    plot_avg_precision(request_list, search_results)    
-    
+    plot_avg_precision(request_list, search_results, answer_count)
+
 def eval_request(search_method, index, weight_method, request, answer_count):
     """
     This method prints search results for a specific request, and plots a graph with (recall, precision)

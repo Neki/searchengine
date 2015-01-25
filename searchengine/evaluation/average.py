@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 from searchengine.evaluation.evaluation import *
 
-def compute_avg_precision(requests, search_results, recall_points, max_rank=100):
+def compute_avg_precision(requests, search_results, recall_points, max_rank):
     """
     Parameters:
         request (list of Request)
@@ -30,14 +30,14 @@ def compute_avg_precision(requests, search_results, recall_points, max_rank=100)
     return list(zip(recall_points, ys))
 
 
-def plot_avg_precision(requests, search_results, max_rank=100):
+def plot_avg_precision(requests, search_results, max_rank):
     """
     Parameters:
         request (list of Request)
         search_results (dict mapping int to tuple of (int, int)): a map between a request id, and an ordonned list of returned documents id (together with their scores) for this request
     """
     recalls = [x / 10 for x in range(0, 11)]
-    points = compute_avg_precision(requests, search_results, recalls)
+    points = compute_avg_precision(requests, search_results, recalls, max_rank)
     xs = [p[0] * 100 for p in points]
     ys = [p[1] * 100 for p in points]
 
