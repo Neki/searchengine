@@ -1,6 +1,4 @@
 import matplotlib.pyplot as plt
-import bisect
-import itertools
 
 from searchengine.evaluation.evaluation import *
 
