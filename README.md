@@ -9,7 +9,7 @@ Caveats:
 * in memory processing only
 * the index is not saved to disk and computed again each time (this takes a few seconds on the CACM collection)
 * generally, little attention has been given to optimizations and performance beyond using decent algorithms
-* little pre-processing is done before indexing, so for instance "San Fransisco" will be 2 tokens, singular and plurals will not be recognized as the same word...
+* little pre-processing is done before indexing, so for instance "San Francisco" will be 2 separate tokens, singular and plurals will not be recognized as the same word...
 * only a parser for the CACM collection is implemented
 
 Three different search models are implemented (vectorial, probabilistic, and boolean).
