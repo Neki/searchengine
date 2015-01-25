@@ -33,7 +33,7 @@ class PrecisionRecallData:
             cleaned.append(max(g, key=lambda x: x[1]))
 
         interpolated_points = [None] * len(cleaned)
-        interpolated_points[-1] = points[-1]
+        interpolated_points[-1] = cleaned[-1]
 
         for i in range(len(cleaned) - 2, -1, -1):
             interpolated_points[i] = (cleaned[i][0], cleaned[i][1] if cleaned[i][1] > interpolated_points[i+1][1] else interpolated_points[i+1][1])
