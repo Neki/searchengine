@@ -40,7 +40,7 @@ class PrecisionRecallData:
 
         interpolated_points[0] = (0, 1)
         return interpolated_points
-    
+
     def precision_for(self, recall_level):
         """
         Parameters:
