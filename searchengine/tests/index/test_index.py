@@ -61,9 +61,9 @@ class TestIndex(TestCase):
     def test_weights(self):
         document = CacmDocument(2, "title title", "abstract", "keywords")
         index = Index([], [document])
-        weights = index.get_weights(2)
-        self.assertEqual(2, weights["title"])
-        self.assertEqual(1, weights["abstract"])
+        weights = index.get_weights(2, Weighting.TermFrequency)
+        self.assertEqual(1, weights["title"])
+        self.assertEqual(0.5, weights["abstract"])
 
     def test_common_words(self):
         document = CacmDocument(2, "common title", "not so common abstract", "unusual keywords")
@@ -96,13 +96,13 @@ class TestDocStats(TestCase):
 
     def test_frequency_weights(self):
         stats = DocStats({"toto": 20, "tata": 50}, 100)
-        self.assertEqual(20, stats.weights()["toto"])
-        self.assertEqual(50, stats.weights()["tata"])
+        self.assertEqual(20/50, stats.weights(weighting=Weighting.TermFrequency)["toto"])
+        self.assertEqual(50/50, stats.weights(weighting=Weighting.TermFrequency)["tata"])
 
     def test_log_frequency_weights(self):
         stats = DocStats({"toto": 20, "tata": 50}, 100)
-        self.assertGreaterEqual(0.001, abs(2.301 - stats.weights(weighting=Weighting.LogTermFrequency)["toto"]))
-        self.assertGreaterEqual(0.001, abs(2.699 - stats.weights(weighting=Weighting.LogTermFrequency)["tata"]))
+        self.assertGreaterEqual(0.001, abs(0.852 - stats.weights(weighting=Weighting.LogTermFrequency)["toto"]))
+        self.assertGreaterEqual(0.001, abs(1 - stats.weights(weighting=Weighting.LogTermFrequency)["tata"]))
 
     @unittest.skip("Test not written yet")
     def test_tf_idf(self):

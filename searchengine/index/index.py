@@ -72,7 +72,7 @@ class Index:
         """
         return self.__stats.keys()
 
-    def get_weights(self, doc_id, weighting_method=Weighting.TermFrequency, corpus_index=None):
+    def get_weights(self, doc_id, weighting_method, corpus_index=None):
         """
         Parameter:
             doc_id (int): a document ID. This document must be present in the index.
@@ -152,7 +152,7 @@ class DocStats:
         self.frequency = frequency
         self.nb_words = nb_words
 
-    def weights(self, weighting=Weighting.TermFrequency, index=None):
+    def weights(self, weighting, index=None):
         """
         Returns:
             a dictionary mapping each word in the document to a weight
@@ -180,7 +180,8 @@ class DocStats:
         out = {}
         for word in self.frequency.keys():
             out[word] = self.frequency[word]
-        return out
+        # Normalization
+        return {word: frequency / max(out.values()) for word, frequency in out.items()}
 
     def __log_term_frequency_weights(self):
         """
@@ -191,7 +192,8 @@ class DocStats:
         for word in self.frequency.keys():
             if self.frequency[word] > 0:
                 out[word] = 1 + math.log10(self.frequency[word])
-        return out
+        # Normalization
+        return {word: weight / max(out.values()) for word, weight in out.items()}
 
     def __tf_idf_weights(self, index):
         """
@@ -203,7 +205,8 @@ class DocStats:
             dft = index.get_nb_docs_with_word(word)
             if self.frequency[word] > 0 and dft > 0:
                 out[word] = (1 + math.log10(self.frequency[word])) * math.log10(index.nb_documents / dft)
-        return out
+        # Normalization
+        return {word: weight / max(out.values()) for word, weight in out.items()}
 
 
 
