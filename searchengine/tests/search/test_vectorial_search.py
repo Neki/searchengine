@@ -31,4 +31,6 @@ class TestVectorialSearch(TestCase):
         common_words=["aujourd","il","fait","ca","mot","ok"]
         index = Index(common_words, document_list)
         search_result = vectorial_search(request, index, 2, Weighting.TermFrequency)
-        self.assertEqual([(document2.doc_id,0.6882472016116852),(document1.doc_id,0.5773502691896258)],search_result)
+        self.assertGreaterEqual(0.0001, abs(0.6882 - search_result[0][1]))
+        self.assertGreaterEqual(0.0001, abs(0.5773 - search_result[1][1]))
+        self.assertEqual([2, 1], [doc_id for (doc_id, w) in search_result])
