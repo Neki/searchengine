@@ -72,7 +72,7 @@ class Index:
         """
         return self.__stats.keys()
 
-    def get_weights(self, doc_id, weighting_method=Weighting.TermFrequency, corpus_index=None):
+    def get_weights(self, doc_id, weighting_method, corpus_index=None):
         """
         Parameter:
             doc_id (int): a document ID. This document must be present in the index.
@@ -152,7 +152,7 @@ class DocStats:
         self.frequency = frequency
         self.nb_words = nb_words
 
-    def weights(self, weighting=Weighting.TermFrequency, index=None):
+    def weights(self, weighting, index=None):
         """
         Returns:
             a dictionary mapping each word in the document to a weight
