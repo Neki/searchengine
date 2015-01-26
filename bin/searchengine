@@ -31,7 +31,7 @@ def main():
             "containing a list of 'stop words' to ignore when indexing",
             default="resources/common_words")
     parser.add_argument("-w", "--weight-method", help="how to compute the weights in the vectorial method", default="tfidf",
-            choices=["tfidf","tf","ltf"])
+            choices=["tfidf","tf","ltf", "all"])
 
     parser_search = subparsers.add_parser('search', help='Perform a search')
     parser_search.add_argument("request", help="a request string")
@@ -44,7 +44,7 @@ def main():
     parser_evaluation.add_argument("-q", "--requests", help="path to the file containing the requests", default="resources/query.text")
     parser_evaluation.add_argument("-r", "--results", help="path to the file containing the expected results for each request", default="resources/qrels.text")
     parser_evaluation.add_argument("-m", "--search-method", help="The method used to perform the search", default="vectorial",
-            choices=["vectorial", "probabilistic"])
+            choices=["vectorial", "probabilistic", "both"])
 
     parser_search.set_defaults(func=process_search)
     parser_evaluation.set_defaults(func=process_evaluation)
@@ -71,19 +71,23 @@ def process_search(args):
         print("Could not find the file at: {0}".format(e.filename), file=sys.stderr)
         sys.exit(1)
 
-def get_weight_method(arg_weight_method):
+def get_weight_methods(arg_weight_method):
     """
-    Parameter : Weight method entered by user
-    Returns : Corresponding weight method enum
+    Parameter:
+        (string) Weight method entered by user
+    Returns:
+        (list of Weighting) An array of the corresponding weight methods
     """
     if arg_weight_method == "tfidf":
-        return Weighting.Tf_Idf
+        return [Weighting.Tf_Idf]
     elif arg_weight_method == "ltf":
-        return Weighting.LogTermFrequency
+        return [Weighting.LogTermFrequency]
     elif arg_weight_method == "tf":
-        return Weighting.TermFrequency
+        return [Weighting.TermFrequency]
+    elif arg_weight_method == "all":
+        return [Weighting.Tf_Idf, Weighting.LogTermFrequency, Weighting.TermFrequency]
     else:
-        raise 'wrong weight method'
+        raise 'Unsupported search method: {}'.format(arg_weight_method)
 
 def process_evaluation(args):
     """
@@ -103,9 +107,16 @@ def process_evaluation(args):
         results = load_from_results_file(args.results)
         id = int(args.request_id)
         index = Index(stop_words, documents)
+        if args.search_method == "both":
+            search_methods = ["probabilistic", "vectorial"]
+        else:
+            search_methods = [args.search_method]
 
         if id == 0:
-            eval_all_requests(requests, results, args.search_method, index, get_weight_method(args.weight_method),args.answer_count)
+            for method in search_methods:
+                for weight in get_weight_methods(args.weight_method):
+                    plt = eval_all_requests(requests, results, method, index, weight, args.answer_count, "{}/{}".format(method, weight))
+            plt.show() # plt is the Pyplot module
             sys.exit(0)
 
         if id not in requests:
@@ -119,7 +130,8 @@ def process_evaluation(args):
         print("\nPertinant documents:")
         print(results[id])
         request = Request(id, requests[id],results[id])
-        eval_request(args.search_method, index, get_weight_method(args.weight_method), request, args.answer_count)
+        search_methods = []
+        eval_request(search_methods, index, get_weight_methods(args.weight_method), request, args.answer_count)
     except FileNotFoundError as e:
         print("Could not find the file at: {0}".format(e.filename), file=sys.stderr)
         sys.exit(1)
@@ -137,15 +149,16 @@ def dispatch_search(search_method, index, weight_method, request, answer_count):
     elif search_method == "probabilistic":
         results = binary_independance_retrieval(request, index, answer_count)
     else:
-        raise UnknownMethodError("Method {0} is not supported".format(method), method)
+        raise UnknownMethodError("Method {0} is not supported".format(search_method), search_method)
     return results
 
 def display_results(results):
     print(results)
 
-def eval_all_requests(requests, results, search_method, index, weight_method, answer_count):
+def eval_all_requests(requests, results, search_method, index, weight_method, answer_count, label):
     """
-    This method plots the average precision for all requests and search results.
+    This method plots the average precision for all requests and search results, and returns the pyplot module.
+    Call pyplot.show() to display the plots once you have called this method with all the search methods and weight methods you are interested in.
     """
     request_list = []
     search_results = {}
@@ -154,13 +167,16 @@ def eval_all_requests(requests, results, search_method, index, weight_method, an
             r = Request(request_id, requests[request_id], results[request_id])
             request_list.append(r)
             search_results[request_id] = dispatch_search(search_method, index, weight_method, request, answer_count)
-    plot_avg_precision(request_list, search_results, answer_count)
+    return plot_avg_precision(request_list, search_results, answer_count, label)
 
-def eval_request(search_method, index, weight_method, request, answer_count):
+def eval_request(search_methods, index, weight_methods, request, answer_count):
     """
     This method prints search results for a specific request, and plots a graph with (recall, precision)
     """
-    search_results = dispatch_search(search_method, index, weight_method, request.text, answer_count)
+    search_results = {}
+    for method in search_methods:
+        for weight_method in weight_methods:
+            search_results["{}/{}".format(method, weight_method)] = dispatch_search(method, index, weight_method, request.text, answer_count)
     print("\nSearch results:")
     print(search_results)
     plot_precision_vs_recall(request, search_results)

@@ -50,18 +50,20 @@ def plot_precision_vs_recall(request, search_results, max_rank=None):
     Displays a graph with recall as abscissa and precision as ordinate
     """
     if max_rank is None:
-        max_rank = len(search_results)
+        max_rank = max((len(results) for results in search_results.values()))
     fig, ax1 = plt.subplots()
     plt.axis([-5, 105, -5, 105])
     plt.xlabel('Recall')
     plt.ylabel('Precision')
     plt.title('Evaluation')
-    precisions = [precision(request, search_results[:rank]) for rank in range(0, min(len(search_results), max_rank))]
-    recalls = [recall(request, search_results[:rank]) for rank in range(0, min(len(search_results), max_rank))]
-    points = list(zip(recalls, precisions))
-    data = PrecisionRecallData(points)
-    interpolated_points = data.interpolated_points
-    xs = [p[0] * 100 for p in interpolated_points]
-    ys = [p[1] * 100 for p in interpolated_points]
-    plt.plot(xs, ys, "o")
+    for label, results in search_results.items():
+        precisions = [precision(request, results[:rank]) for rank in range(0, min(len(results), max_rank))]
+        recalls = [recall(request, results[:rank]) for rank in range(0, min(len(results), max_rank))]
+        points = list(zip(recalls, precisions))
+        data = PrecisionRecallData(points)
+        interpolated_points = data.interpolated_points
+        xs = [p[0] * 100 for p in interpolated_points]
+        ys = [p[1] * 100 for p in interpolated_points]
+        plt.plot(xs, ys, "o", label=label)
+    plt.legend(loc='lower right')
     plt.show()
