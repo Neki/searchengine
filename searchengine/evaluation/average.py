@@ -30,11 +30,15 @@ def compute_avg_precision(requests, search_results, recall_points, max_rank):
     return list(zip(recall_points, ys))
 
 
-def plot_avg_precision(requests, search_results, max_rank):
+def plot_avg_precision(requests, search_results, max_rank, label):
     """
+    Add the "average precision vs recall" plot to the pending Pyplot plots. Use pyplot.show() to display the plots (this is not called by this function).
     Parameters:
         request (list of Request)
         search_results (dict mapping int to tuple of (int, int)): a map between a request id, and an ordonned list of returned documents id (together with their scores) for this request
+        label (str)
+    Returns:
+        the pyplot module.
     """
     recalls = [x / 10 for x in range(0, 11)]
     points = compute_avg_precision(requests, search_results, recalls, max_rank)
@@ -42,10 +46,11 @@ def plot_avg_precision(requests, search_results, max_rank):
     ys = [p[1] * 100 for p in points]
 
     # Plot
-    fig, ax1 = plt.subplots()
+    #fig, ax1 = plt.subplots()
     plt.axis([-5, 105, -5, 105])
     plt.xlabel('Rappel')
     plt.ylabel('Precision')
     plt.title('Evaluation')
-    plt.plot(xs, ys, "o")
-    plt.show()
+    plt.plot(xs, ys, "-o", label=label)
+    plt.legend(loc='best')
+    return plt
