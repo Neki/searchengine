@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import bisect
 import itertools
 
 from searchengine.evaluation.precision_recall_data import *
@@ -56,6 +55,7 @@ def plot_precision_vs_recall(request, search_results, max_rank=None):
     plt.xlabel('Recall')
     plt.ylabel('Precision')
     plt.title('Evaluation')
+    markers = itertools.cycle(("o", "v", "^", "s", "p", "*"))
     for label, results in search_results.items():
         precisions = [precision(request, results[:rank]) for rank in range(0, min(len(results), max_rank))]
         recalls = [recall(request, results[:rank]) for rank in range(0, min(len(results), max_rank))]
@@ -64,6 +64,6 @@ def plot_precision_vs_recall(request, search_results, max_rank=None):
         interpolated_points = data.interpolated_points
         xs = [p[0] * 100 for p in interpolated_points]
         ys = [p[1] * 100 for p in interpolated_points]
-        plt.plot(xs, ys, "o", label=label)
-    plt.legend(loc='lower right')
+        plt.plot(xs, ys, linestyle="", label=label, marker=next(markers))
+    plt.legend(loc='best')
     plt.show()

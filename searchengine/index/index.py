@@ -114,7 +114,7 @@ class Index:
             dft = self.get_nb_docs_with_word(word)
             assert(dft >= 1)  # dft >= 1 by definition of intersect
             a = math.log10(self.nb_documents / dft)
-            pr = 0.5  # TODO: use a more sophisticated method
+            pr = 0.5
             b = math.log10(pr / (1 - pr))
             rsv += b + a
         return rsv
