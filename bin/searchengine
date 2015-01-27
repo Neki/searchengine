@@ -107,12 +107,14 @@ def process_evaluation(args):
         results = load_from_results_file(args.results)
         id = int(args.request_id)
         index = Index(stop_words, documents)
+        search_methods = []
         if args.search_method == "both":
             search_methods = ["probabilistic", "vectorial"]
         else:
             search_methods = [args.search_method]
 
         if id == 0:
+            assert len(search_methods) >= 1
             for method in search_methods:
                 for weight in get_weight_methods(args.weight_method):
                     plt = eval_all_requests(requests, results, method, index, weight, args.answer_count, "{}/{}".format(method, weight))
@@ -130,7 +132,6 @@ def process_evaluation(args):
         print("\nPertinant documents:")
         print(results[id])
         request = Request(id, requests[id],results[id])
-        search_methods = []
         eval_request(search_methods, index, get_weight_methods(args.weight_method), request, args.answer_count)
     except FileNotFoundError as e:
         print("Could not find the file at: {0}".format(e.filename), file=sys.stderr)
@@ -173,6 +174,10 @@ def eval_request(search_methods, index, weight_methods, request, answer_count):
     """
     This method prints search results for a specific request, and plots a graph with (recall, precision)
     """
+    if len(search_methods) == 0:
+        raise ValueError("You must provide at least one search method")
+    if len(weight_methods) == 0:
+        raise ValueError("You must provide at least one weight method")
     search_results = {}
     for method in search_methods:
         for weight_method in weight_methods:
