@@ -118,8 +118,11 @@ def process_evaluation(args):
             markers = itertools.cycle(("o", "v", "^", "s", "p", "*"))
             assert len(search_methods) >= 1
             for method in search_methods:
-                for weight in get_weight_methods(args.weight_method):
-                    plt = eval_all_requests(requests, results, method, index, weight, args.answer_count, "{}/{}".format(method, weight), next(markers))
+                if method == "vectorial":
+                    for weight in get_weight_methods(args.weight_method):
+                        plt = eval_all_requests(requests, results, method, index, weight, args.answer_count, "{}/{}".format(method, weight), next(markers))
+                else:
+                    plt = eval_all_requests(requests, results, method, index, None, args.answer_count, "{}".format(method), next(markers))
             plt.show() # plt is the Pyplot module
             sys.exit(0)
 
@@ -182,8 +185,11 @@ def eval_request(search_methods, index, weight_methods, request, answer_count):
         raise ValueError("You must provide at least one weight method")
     search_results = {}
     for method in search_methods:
-        for weight_method in weight_methods:
-            search_results["{}/{}".format(method, weight_method)] = dispatch_search(method, index, weight_method, request.text, answer_count)
+        if method == "vectorial":
+            for weight_method in weight_methods:
+                search_results["{}/{}".format(method, weight_method)] = dispatch_search(method, index, weight_method, request.text, answer_count)
+        else:
+            search_results["{}".format(method)] = dispatch_search(method, index, None, request.text, answer_count)
     print("\nSearch results:")
     print(search_results)
     plot_precision_vs_recall(request, search_results)
