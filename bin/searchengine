@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+import itertools
 
 from searchengine.parser import load_from_cacm_file
 from searchengine.search import vectorial_search, boolean_search, binary_independance_retrieval
@@ -114,10 +115,11 @@ def process_evaluation(args):
             search_methods = [args.search_method]
 
         if id == 0:
+            markers = itertools.cycle(("o", "v", "^", "s", "p", "*"))
             assert len(search_methods) >= 1
             for method in search_methods:
                 for weight in get_weight_methods(args.weight_method):
-                    plt = eval_all_requests(requests, results, method, index, weight, args.answer_count, "{}/{}".format(method, weight))
+                    plt = eval_all_requests(requests, results, method, index, weight, args.answer_count, "{}/{}".format(method, weight), next(markers))
             plt.show() # plt is the Pyplot module
             sys.exit(0)
 
@@ -156,7 +158,7 @@ def dispatch_search(search_method, index, weight_method, request, answer_count):
 def display_results(results):
     print(results)
 
-def eval_all_requests(requests, results, search_method, index, weight_method, answer_count, label):
+def eval_all_requests(requests, results, search_method, index, weight_method, answer_count, label, marker):
     """
     This method plots the average precision for all requests and search results, and returns the pyplot module.
     Call pyplot.show() to display the plots once you have called this method with all the search methods and weight methods you are interested in.
@@ -168,7 +170,7 @@ def eval_all_requests(requests, results, search_method, index, weight_method, an
             r = Request(request_id, requests[request_id], results[request_id])
             request_list.append(r)
             search_results[request_id] = dispatch_search(search_method, index, weight_method, request, answer_count)
-    return plot_avg_precision(request_list, search_results, answer_count, label)
+    return plot_avg_precision(request_list, search_results, answer_count, label, marker)
 
 def eval_request(search_methods, index, weight_methods, request, answer_count):
     """
